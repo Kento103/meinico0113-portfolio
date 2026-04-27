@@ -17,7 +17,6 @@ CREATE TABLE users (
     age INT,                                  -- 年齢
     profile TEXT,                        -- 自己紹介文
     profile_image VARCHAR(255)                -- 画像ファイル名
-    ALTER TABLE users ADD account_id INT;     -- ログインアカウント情報とプロフィール情報を結合するための外部キー用
 );
 
 -- 2. accountsテーブル（管理者・スタッフ情報）削除予定（usersテーブルがあるため）
@@ -28,7 +27,6 @@ CREATE TABLE accounts (
     email VARCHAR(255),                         -- ログイン用メール
     password VARCHAR(255),                      -- パスワード
     status INT                                  -- 状態（例: 1=有効, 0=無効）
-    ALTER TABLE accounts ADD role VARCHAR(10);  -- 管理者、一般スタッフなどの区分け用
 );
 
 -- 3. categoriesテーブル（投稿などのカテゴリ分け）
@@ -46,7 +44,7 @@ CREATE TABLE posts (
     like_count INT DEFAULT 0,                 -- いいね数（初期値0）
     -- usersテーブルのidと紐付け
     -- ユーザーが消えたら整合性を保つための設定
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    -- FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- 5. contactsテーブル（お問い合わせ情報）
@@ -57,4 +55,7 @@ CREATE TABLE contacts (
     status VARCHAR(20) NOT NULL DEFAULT '未対応', -- 対応状況
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 受信日時
 );
+
+ALTER TABLE users ADD account_id INT;     -- ログインアカウント情報とプロフィール情報を結合するための外部キー用
+ALTER TABLE accounts ADD role VARCHAR(10);  -- 管理者、一般スタッフなどの区分け用
 

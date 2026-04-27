@@ -2,5 +2,6 @@
 # コンパイルファイル
 target/
 # mac管理DB
-*.DS_Store
+.DS_Store
 # VSCode固有設定
+.env

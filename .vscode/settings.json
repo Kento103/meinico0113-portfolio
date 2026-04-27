@@ -2,5 +2,9 @@
     自動ではなく「対話形式（確認ダイアログ）」でビルド設定を更新するようにする設定
     interactive = 勝手に更新せず聞いてねという意味 */
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    // "java.configuration.updateBuildConfiguration": "interactive"
+
+    // レビューのため自動適用に変更中！親ブランチにコミットしないこと！
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

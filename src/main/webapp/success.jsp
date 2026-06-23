@@ -1,7 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
-<%@ page import="java.util.List" %>
-<%@ page import="model.Category" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
 <html>
@@ -10,39 +8,58 @@
     <title>ログイン成功</title>
 </head>
 <body>
-    <h1>ようこそ、管理画面へ。</h1>
+    <h1>管理画面</h1>
     
     <p>
-        <a href="<%= request.getContextPath() %>/admin/accountList">
+        <a href="${pageContext.request.contextPath}/admin/accountList">
         アカウント管理
         </a>
     </p>
+
 <h2>いいねランキング</h2>
+    <div id="ranking-data-store" style="display: none;">
+        <c:forEach var="post" items="${rankingList}">
+            <span class="ranking-item" data-post="${post}"></span>
+        </c:forEach>
+    </div>
 
-<%
-List<String> rankingList = (List<String>) request.getAttribute("rankingList");
-
-if (rankingList != null && !rankingList.isEmpty()) {
-    int rank = 1;
-    for (String post : rankingList) {
-%>
-        <p><%= rank %>位：<%= post %></p>
-<%
-        rank++;
-    }
-} else {
-%>
-    <p>現在ランキングデータはありません。</p>
-<%
-}
-%>
+    <div id="ranking-container"></div>
 
 <p>
-<a href="<%= request.getContextPath() %>/admin/contactList">
+<a href="${pageContext.request.contextPath}/admin/contactList">
     問い合わせ一覧
 </a>
 </p>
 
     <a href="index.jsp">ログアウト（戻る）</a>
+
+    <script>
+        function renderRanking() {
+            const container = document.getElementById('ranking-container');
+            container.innerHTML = ''; // 初期化
+
+            // 隠しタグからデータをすべて取得
+            const elements = document.querySelectorAll('.ranking-item');
+
+            // データがない（0件）場合の条件分岐
+            if (elements.length === 0) {
+                container.innerHTML = '<p>現在ランキングデータはありません。</p>';
+                return; // 処理を終了
+            }
+
+            // データがある（1件以上）場合のループ処理
+            elements.forEach((el, index) => {
+                const post = el.getAttribute('data-post');
+                
+                const rank = index + 1;
+
+                const html = '<p>' + rank + '位：' + post + '</p>';
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // ページが読み込まれたら実行
+        window.addEventListener('DOMContentLoaded', renderRanking);
+    </script>
 </body>
 </html>

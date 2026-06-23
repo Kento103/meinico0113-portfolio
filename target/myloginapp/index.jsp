@@ -14,19 +14,7 @@
 <body>
     <h2>ログイン画面</h2>
 
-    <%-- エラーメッセージの表示 --%>
-    <% 
-        String error = request.getParameter("error");
-        if("1".equals(error)) { 
-    %>
-        <p style="color: red;">ユーザー名かパスワードが違います！</p>
-    <% 
-        } else if("2".equals(error)) { 
-    %>
-        <p style="color: red;">ユーザー名が長すぎます（254文字以内で入力してください）</p>
-    <% 
-        } 
-    %>
+    <div id="error-message-container"></div>
 
     <form action="LoginServlet" method="post">
         ユーザー名：<br>
@@ -37,5 +25,32 @@
         
         <input type="submit" value="ログイン">
     </form>
+
+    <script>
+        function renderLoginView() {
+            const errorContainer = document.getElementById('error-message-container');
+            errorContainer.innerHTML = ''; // 初期化
+
+            // URLの「?error=1」などのパラメータをJavaScriptで直接取得する
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorCode = urlParams.get('error');
+
+            // エラーコードに応じた条件分岐
+            let errorMessageHtml = '';
+            if (errorCode === '1') {
+                errorMessageHtml = '<p style="color: red;">ユーザー名かパスワードが違います！</p>';
+            } else if (errorCode === '2') {
+                errorMessageHtml = '<p style="color: red;">ユーザー名が長すぎます（254文字以内で入力してください）</p>';
+            }
+
+            // 組み立てたエラーメッセージを画面に流し込む
+            if (errorMessageHtml !== '') {
+                errorContainer.innerHTML = errorMessageHtml;
+            }
+        }
+
+        // ページが読み込まれたら実行
+        window.addEventListener('DOMContentLoaded', renderLoginView);
+    </script>
 </body>
 </html>

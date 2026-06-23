@@ -19,7 +19,7 @@
     <!-- 画像アップロードがあるため multipart/form-data を指定 -->
     <form action="ProfileUpdateServlet" method="post" enctype="multipart/form-data">
         
-        <!-- 1. プロフィール画像 -->
+        <!-- プロフィール画像 -->
         <div class="form-group">
             <label>プロフィール画像</label>
             <!-- 現在の画像がある場合は表示 -->
@@ -29,19 +29,19 @@
             <input type="file" name="profileImage" accept="image/*">
         </div>
 
-        <!-- 2. 名前 -->
+        <!-- 名前 -->
         <div class="form-group">
             <label for="name">名前</label>
             <input type="text" id="name" name="name" value="${c:out(userProfile.name)}" required>
         </div>
 
-        <!-- 3. フリガナ -->
+        <!-- フリガナ -->
         <div class="form-group">
             <label for="furigana">フリガナ</label>
             <input type="text" id="furigana" name="furigana" value="${c:out(userProfile.furigana)}" required>
         </div>
 
-        <!-- 4. 性別 -->
+        <!-- 性別 -->
         <div class="form-group">
             <label>性別</label>
             <label><input type="radio" name="gender" value="male" ${userProfile.gender == 'male' ? 'checked' : ''}> 男性</label>
@@ -49,13 +49,13 @@
             <label><input type="radio" name="gender" value="other" ${userProfile.gender == 'other' ? 'checked' : ''}> その他</label>
         </div>
 
-        <!-- 5. 年齢 -->
+        <!-- 年齢 -->
         <div class="form-group">
             <label for="age">年齢</label>
             <input type="number" id="age" name="age" value="${userProfile.age}" min="0" max="150">
         </div>
 
-        <!-- 6. 自己紹介 -->
+        <!-- 自己紹介 -->
         <div class="form-group">
             <label for="introduction">自己紹介</label>
             <textarea id="introduction" name="introduction" rows="5" cols="40">${c:out(userProfile.profile)}</textarea>

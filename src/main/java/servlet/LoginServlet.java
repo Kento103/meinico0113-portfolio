@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // DB接続設定（環境に合わせて変更してください）
+    // DB接続設定
     private final String JDBC_URL = "jdbc:mysql://localhost:3306/myloginapp_db";
     private final String DB_USER = "root";
     private final String DB_PASS = "koyu0104";
@@ -41,19 +41,19 @@ public class LoginServlet extends HttpServlet {
 
         Connection conn = null;
         try {
-            // 1. JDBCドライバのロード（MySQL 8.0以降の場合）
+            // JDBCドライバのロード
             Class.forName("com.mysql.cj.jdbc.Driver");
             
-            // 2. DB接続
+            // DB接続
             conn = DriverManager.getConnection(JDBC_URL, DB_USER, DB_PASS);
 
-            // 3. SQLの準備（likesとnameも取得するように変更）
+            // SQLの準備
             String sql = "SELECT * FROM users WHERE name = ? AND password = ? AND is_deleted = 0";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, inputUser);
             pstmt.setString(2, inputPass);
 
-            // 4. 実行
+            // 実行
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
@@ -87,7 +87,7 @@ public class LoginServlet extends HttpServlet {
             // LoginServlet.java の catch 部分を一時的に修正
             } catch (Exception e) {
                 e.printStackTrace();
-            // エラー詳細を画面に出す（本番ではNGですが、デバッグ用に）
+            // エラー詳細を画面に出す
                 response.getWriter().println("Error: " + e.getMessage());
                 return; // sendRedirectはさせない
             } finally {

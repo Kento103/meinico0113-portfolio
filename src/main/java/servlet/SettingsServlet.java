@@ -25,12 +25,16 @@ public class SettingsServlet extends HttpServlet {
 
         // セッションから現在のユーザー名を特定する
         HttpSession session = request.getSession();
-        String currentUserName = (String) session.getAttribute("user");
+        // LoginServletが保存した "account" オブジェクトを取得する
+        model.Account currentAccount = (model.Account) session.getAttribute("account");
 
-        if (currentUserName == null) {
+        if (currentAccount == null) {
             response.sendRedirect("index.jsp");
             return;
         }
+
+        // オブジェクトから「ID」を取得する
+        int userId = currentAccount.getId();
 
         // バリデーション
         if (userName == null || userName.length() > 255) {
@@ -62,15 +66,15 @@ public class SettingsServlet extends HttpServlet {
             try (Connection conn = DriverManager.getConnection(url, user, dbPass)) {
                 
                 System.out.println("--- デバッグ開始 ---");
-                System.out.println("セッションのユーザー名: [" + currentUserName + "]");
+                System.out.println("セッションのユーザー名: [" + currentAccount + "]");
 
-                // SQL: ここで現在の名前(currentUserName)を条件に更新
-                String sql = "UPDATE users SET name = ?, email = ?, password = ? WHERE name = ?";
+                // 現在の名前(currentUserName)を条件に更新
+                String sql = "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
                 pstmt.setString(1, userName);
                 pstmt.setString(2, email);
                 pstmt.setString(3, pass);
-                pstmt.setString(4, currentUserName);
+                pstmt.setInt(4, userId);
 
                 int result = pstmt.executeUpdate();
 
@@ -83,13 +87,12 @@ public class SettingsServlet extends HttpServlet {
                 } else {
                     request.setAttribute("message", "DBの更新に失敗しました（一致するユーザーが見つかりません）");
                 }
-            } // ← ここで try-with-resources (conn) を閉じる
+            }
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("message", "エラーが発生しました: " + e.getMessage());
-        } // ← ここで catch を閉じる
+        }
 
-        // JSPへ戻る
         request.getRequestDispatcher("settings.jsp").forward(request, response);
-    } // ← ここで doPost メソッドを閉じる
-} // ← ここで クラスを閉じる
+    }
+}

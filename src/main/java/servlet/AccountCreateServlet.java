@@ -1,23 +1,23 @@
 package servlet;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
-
 import dao.AccountDAO;
 
 @WebServlet("/admin/accountCreate")
 @MultipartConfig // 画像アップロード用
 public class AccountCreateServlet extends HttpServlet {
 
+    // フォームからPOSTメソッドでデータが送信されたときに自動的に実行されるメソッド
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
 
+        // 画面のフォーム（inputタグのname属性など）から、入力された値を文字列として取得
         String role = request.getParameter("role");
         String name = request.getParameter("name");
         String email = request.getParameter("email");
@@ -26,12 +26,14 @@ public class AccountCreateServlet extends HttpServlet {
         String profile = request.getParameter("profile");
         String statusStr = request.getParameter("status"); // 数値変換前に文字列として取得
         
-        // statusのnullチェックを追加
+        // ステータスチェック
+        // 値が空（null）か、または「半角数字だけ」で構成されていない場合
         if (statusStr == null || !statusStr.matches("^[0-9]+$")) {
             request.setAttribute("error", "ステータスを入力してください");
             request.getRequestDispatcher("/adminAccountNew.jsp").forward(request, response);
             return;
         }
+        // チェックを通過したら、文字列から数値（int）に変換
         int status = Integer.parseInt(statusStr);
 
         // 名前のバリデーション

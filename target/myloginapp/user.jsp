@@ -12,7 +12,7 @@
 </style>
 </head>
 <body>
-    <h1>ようこそ、一般画面へ</h1>
+    <h1>一般画面</h1>
 
     <hr>
     <div class="like-info">

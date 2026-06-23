@@ -7,6 +7,7 @@
 <meta charset="UTF-8">
 <title>公開画面</title>
 <style>
+    /* ユーザー1人分の情報の枠線 */
     .user-card { border: 1px solid #ddd; margin: 10px; padding: 10px; border-radius: 8px; width: 300px; }
     
     /* ボタンの共通スタイル */
@@ -22,18 +23,18 @@
         color: white;
     }
     
-    /* いいねボタン（赤） */
+    /* いいねボタン（赤）*/
     .like-btn { background-color: #ff4d4d; }
     
-    /* 詳細ボタン（グレー） */
+    /* 詳細ボタン（グレー）*/
     .detail-btn { background-color: #888888; }
 
-    /* 横並びにするためのコンテナ */
+    /* 横並びに配置 */
     .button-group { display: flex; gap: 10px; margin-top: 10px; }
 </style>
 </head>
 <body>
-    <h1>ようこそ、公開画面へ</h1>
+    <h1>公開画面</h1>
 
     <div style="margin-top: 10px;">
         <a href="<%= request.getContextPath() %>/index.jsp">ログイン</a>
@@ -41,27 +42,55 @@
     </div>
 
     <h2>ユーザーランキング</h2>
+    <div id="user-data-store" style="display: none;"> /* データの一時置き場のためユーザー側の画面には表示されない */
+        <c:forEach var="acc" items="${userList}"> /* Servletから受け取ったユーザーの数だけ繰り返す */
+            <span class="user-raw-data" 
+                  data-id="${acc.id}"
+                  data-kana="${acc.kana}"
+                  data-gender="${acc.gender}"
+                  data-age="${acc.age}"
+                  data-profile="${acc.profile}"
+                  data-likes="${acc.likes}"></span>
+        </c:forEach>
+    </div>
 
-    <c:forEach var="acc" items="${userList}">
-        <div class="user-card">
-            <strong>ニックネーム: ${acc.kana}</strong><br> 
-            <span>性別: ${acc.gender} / 年齢: ${acc.age}歳</span><br>
-            <p>自己紹介: ${acc.profile}</p>
+    <div id="user-list-container"></div>
+        
+    <script>
+        function renderUserList() {
+            const container = document.getElementById('user-list-container');
+            container.innerHTML = ''; 
+
+            const dataElements = document.querySelectorAll('.user-raw-data');
             
-            <%-- 非同期更新のために id を付与 --%>
-            <p>❤ 現在のいいね数: <strong id="like-count-${acc.id}">${acc.likes}</strong></p>
+            dataElements.forEach(el => {
+                const id = el.getAttribute('data-id');
+                const kana = el.getAttribute('data-kana');
+                const gender = el.getAttribute('data-gender');
+                const age = el.getAttribute('data-age');
+                const profile = el.getAttribute('data-profile');
+                const likes = el.getAttribute('data-likes');
 
-            <div class="button-group">
-                <%-- 詳細ボタン --%>
-                <a href="UserDetailServlet?id=${acc.id}" class="btn detail-btn">詳細を見る</a>
+                const cardHtml = 
+                    '<div class="user-card">' +
+                        '<strong>ニックネーム: ' + kana + '</strong><br>' +
+                        '<span>性別: ' + gender + ' / 年齢: ' + age + '歳</span><br>' +
+                        '<p>自己紹介: ' + profile + '</p>' +
+                        '<p>❤ 現在のいいね数: <strong id="like-count-' + id + '">' + likes + '</strong></p>' +
+                        '<div class="button-group">' +
+                            '<a href="UserDetailServlet?id=' + id + '" class="btn detail-btn">詳細を見る</a>' +
+                            '<form action="LikeServlet" method="post" style="margin: 0;">' +
+                                '<input type="hidden" name="targetId" value="' + id + '">' +
+                                '<button type="submit" class="btn like-btn">いいね！</button>' +
+                            '</form>' +
+                        '</div>' +
+                    '</div>';
 
-                <%-- いいねボタン --%>
-                <form action="LikeServlet" method="post" style="margin: 0;">
-                    <input type="hidden" name="targetId" value="${acc.id}">
-                    <button type="submit" class="btn like-btn">いいね！</button>
-                </form>
-            </div>
-        </div>
-    </c:forEach>
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', renderUserList);
+    </script>
 </body>
 </html>

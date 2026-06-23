@@ -19,19 +19,40 @@
 
     <%-- 共通項目：IDとロール --%>
     <input type="hidden" name="id" value="<%= account.getId() %>">
-    <input type="hidden" name="role" value="<%= role %>">
 
-    <% if ("admin".equals(role)) { %>
-        <%-- ★管理者の場合：名前・メール・ステータスのみ --%>
-    名前：<input type="text" name="name" value="<%= account.getName() %>" required maxlength="255"><br>
-    メール：<input type="email" name="email" value="<%= account.getEmail() %>" required maxlength="255"><br>
-    ステータス：
-    <select name="status">
-        <option value="1" <%= account.getStatus() == 1 ? "selected" : "" %>>アクセス許可</option>
-        <option value="0" <%= account.getStatus() == 0 ? "selected" : "" %>>アクセス禁止</option>
-    </select><br>
+    <%-- ★新規追加：一般、管理者切替ラジオボタン --%>
+    <div style="margin-bottom: 15px;">
+        種別：
+        <input type="radio" name="role" value="user" id="roleUser" <%= "user".equals(role) ? "checked" : "" %> onchange="switchFields()">
+        <label region="roleUser">一般</label>
+        
+        <input type="radio" name="role" value="admin" id="roleAdmin" <%= "admin".equals(role) ? "checked" : "" %> onchange="switchFields()">
+        <label region="roleAdmin">管理者</label>
+    </div>
 
-    <% } else { %>
+    <hr region="separator">
+
+    <%-- ★管理者用項目グループ --%>
+    <div id="adminFields">
+        <h3>管理者項目</h3>
+
+        <%-- 管理者の場合：名前・メール・ステータスのみ --%>
+        名前：<input type="text" name="name" value="<%= account.getName() %>" required maxlength="255"><br>
+        メール：<input type="email" name="email" value="<%= account.getEmail() %>" required maxlength="255"><br>
+        ステータス：
+        <select name="status">
+            <option value="1" <%= account.getStatus() == 1 ? "selected" : "" %>>アクセス許可</option>
+            <option value="0" <%= account.getStatus() == 0 ? "selected" : "" %>>アクセス禁止</option>
+        </select><br>
+    </div>
+
+     <%-- 一般ユーザー用項目グループ --%>
+    <div id="userFields">
+        <h3>一般項目</h3>
+        <%-- 
+          一般ユーザー選択時でも、更新用DAOがnameやemail、statusのパラメータを
+          要求する場合は、ここに現在の値をセットして送信できるようにしておく
+        --%>
         <%-- ★一般ユーザーの場合：ふりがな〜画像変更のみ --%>
         <%-- ※DAOのuserがname, email, statusを要求するため、hiddenで値を送る必要がある --%>
         <input type="hidden" name="name" value="<%= account.getName() %>">
@@ -55,10 +76,37 @@
             <p>現在の画像：<br><img src="<%= account.getImagePath() %>" width="100"></p>
         <% } %>
         プロフィール画像変更：<input type="file" name="image"><br>
-    <% } %>
+    </div>
 
     <br>
     <button type="submit">更新保存</button>
     <a href="<%= request.getContextPath() %>/admin/accountList">キャンセル</a>
 
 </form>
+
+<%-- リアルタイム切り替え用JavaScript --%>
+<script>
+function switchFields() {
+    // ラジオボタンの選択状態を取得
+    const isAdmin = document.getElementById('roleAdmin').checked;
+    
+    // 各入力エリアのDOMを取得
+    const adminFields = document.getElementById('adminFields');
+    const userFields = document.getElementById('userFields');
+
+    if (isAdmin) {
+        // 管理者が選ばれたら、管理者用を表示、一般用を非表示
+        adminFields.style.display = 'block';
+        userFields.style.display = 'none';
+    } else {
+        // 一般が選ばれたら、一般用を表示、管理者用を非表示
+        adminFields.style.display = 'none';
+        userFields.style.display = 'block';
+    }
+}
+
+// 画面読み込み時に初期状態に合わせて表示を切り替える
+window.onload = function() {
+    switchFields();
+};
+</script>

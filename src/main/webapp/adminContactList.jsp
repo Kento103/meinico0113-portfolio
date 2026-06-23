@@ -1,54 +1,84 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Contact" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
+<!DOCTYPE html>
 <html>
 <head>
-    <title>お問い合わせ一覧</title>
+    <meta charset="UTF-8">
+    <title>問い合わせ一覧</title>
 </head>
 <body>
 
-<h2>お問い合わせ一覧</h2>
+<h2>問い合わせ一覧</h2>
 
 <p>
-<a href="<%= request.getContextPath() %>/admin/categoryList">
-カテゴリー一覧
-</a>
+    <a href="${pageContext.request.contextPath}/admin/categoryList">
+    カテゴリー一覧
+    </a>
 </p>
 
 <table border="1">
-<tr>
-    <th>カテゴリー</th>
-    <th>本文（10文字）</th>
-    <th>ステータス</th>
-    <th>詳細</th>
-</tr>
-
-<%
-    List<Contact> list = (List<Contact>) request.getAttribute("contactList");
-    if (list != null) {
-        for (Contact contact : list) {
-%>
-<tr>
-    <td><%= contact.getCategory() %></td>
-    <td>
-        <%= contact.getContent().length() > 10
-            ? contact.getContent().substring(0, 10)
-            : contact.getContent() %>
-    </td>
-    <td><%= contact.getStatus() %></td>
-    <td>
-        <a href="<%= request.getContextPath() %>/admin/contactDetail?id=<%= contact.getId() %>">
-            詳細
-        </a>
-    </td>
-</tr>
-<%
-        }
-    }
-%>
-
+<thead>
+    <tr>
+        <th>カテゴリー</th>
+        <th>本文（10文字）</th>
+        <th>ステータス</th>
+        <th>詳細</th>
+    </tr>
+</thead>
+<tbody id="contact-list-container"></tbody>
 </table>
 
+<div id="contact-data-store" style="display: none;">
+    <c:forEach var="contact" items="${contactList}">
+        <span class="contact-item" 
+              data-id="${contact.id}"
+              data-category="${fn:escapeXml(contact.category)}"
+              data-content="${fn:escapeXml(contact.content)}"
+              data-status="${fn:escapeXml(contact.status)}"></span>
+    </c:forEach>
+</div>
+
+    <script>
+        function renderContactList() {
+            const tbody = document.getElementById('contact-list-container');
+            tbody.innerHTML = ''; // 初期化
+
+            // contextPathを取得するための工夫（aタグのベースとしてJS側で保持）
+            const contextPath = '${pageContext.request.contextPath}';
+
+            // 隠しタグからデータをすべて取得
+            const elements = document.querySelectorAll('.contact-item');
+
+            elements.forEach(el => {
+                const id = el.getAttribute('data-id');
+                const category = el.getAttribute('data-category');
+                const content = el.getAttribute('data-content');
+                const status = el.getAttribute('data-status');
+
+                // 10文字で切り詰める処理
+                let displayContent = content;
+                if (content && content.length > 10) {
+                    displayContent = content.substring(0, 10) + '...';
+                }
+
+                const rowHtml = 
+                    '<tr>' +
+                        '<td>' + category + '</td>' +
+                        '<td>' + displayContent + '</td>' +
+                        '<td>' + status + '</td>' +
+                        '<td>' +
+                            '<a href="' + contextPath + '/admin/contactDetail?id=' + id + '">詳細</a>' +
+                        '</td>' +
+                    '</tr>';
+
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        }
+
+        // ページが読み込まれたら実行
+        window.addEventListener('DOMContentLoaded', renderContactList);
+    </script>
 </body>
 </html>

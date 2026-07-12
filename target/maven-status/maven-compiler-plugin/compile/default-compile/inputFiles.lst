@@ -1,6 +1,7 @@
 /Users/misakikawara/Desktop/myloginapp/src/main/java/dao/AccountDAO.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/dao/CategoryDAO.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/dao/ContactDAO.java
+/Users/misakikawara/Desktop/myloginapp/src/main/java/filter/AuthFilter.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/model/Account.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/model/Category.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/model/Contact.java

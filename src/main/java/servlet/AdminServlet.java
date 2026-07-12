@@ -7,13 +7,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import dao.CategoryDAO;
 import model.Category;
 
@@ -23,8 +21,8 @@ public class AdminServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
         throws ServletException, IOException {
-    
-    // DBから「いいね」が多い順にユーザーを取得する
+
+    // 画面に「〇〇さん いいね数：5個」のような文字のリストを表示するため、Stringを詰めるリストを作る
     List<String> rankingList = new ArrayList<>();
     
     // DB接続情報の定義（LoginServletと同じものを使用）
@@ -33,15 +31,19 @@ public class AdminServlet extends HttpServlet {
     String pass = "koyu0104";
 
     try {
+        // MySQLのドライバ（接続用プログラム）をロード
         Class.forName("com.mysql.cj.jdbc.Driver");
+        // データベースへ接続開始
         Connection conn = DriverManager.getConnection(url, user, pass);
 
         // SQL: いいね数(likes)の降順で取得
         // COALESCEを使うと、kanaがNULLならnameを表示する、という動きができる
         String sql = "SELECT COALESCE(kana, name) AS display_name, likes FROM users ORDER BY likes DESC";
         PreparedStatement pstmt = conn.prepareStatement(sql);
+        // SQLを実行して、結果（ResultSet）を受け取る
         ResultSet rs = pstmt.executeQuery();
 
+        // DBからデータが取れた分だけ、上から順番にループ処理する（ランキング順に並んでいる）
         while (rs.next()) {
             String displayName = rs.getString("display_name");
             int likes = rs.getInt("likes");

@@ -7,12 +7,23 @@ public class DBManager {
 
     public static Connection getConnection() throws Exception {
 
+        // ①接続先（URL）の設定
+        // どこにある、何のDBに、どんな設定で繋ぐかを指定する「接続文字列（JDBC URL）」
+        // ・localhost:3306 → 自分のパソコンの3306番ポートで動いている
+        // ・myloginapp_db →「myloginapp_db」という名前のDBに繋ぐ
+        // ・useUnicode=true&characterEncoding=UTF-8 → 日本語の文字化けを防ぐ設定
+        // ・serverTimezone=Asia/Tokyo → 時間の基準を日本時間（東京）にする設定
         String url = "jdbc:mysql://localhost:3306/myloginapp_db?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Tokyo";
         String user = "root";
         String password = "koyu0104";
 
+        // ③JDBCドライバのロード
+        // JavaとDBが会話できるようにするための「通訳（ドライバ）」をメモリ上に読み込んで有効化する
         Class.forName("com.mysql.cj.jdbc.Driver");
 
+        // ④接続の確立と返却
+        // 設定したURL、ユーザー名、パスワードを使って実際にDBへ接続
+        // 成功すると、DBへの「土管（パイプライン）」のようなオブジェクトが完成し、それをDAOへ送り返す
         return DriverManager.getConnection(url, user, password);
     }
 }

@@ -1,11 +1,9 @@
 package servlet;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
-
 import dao.CategoryDAO;
 
 @WebServlet("/admin/categoryUpdate")
@@ -17,8 +15,10 @@ public class CategoryUpdateServlet extends HttpServlet {
                 request.setCharacterEncoding("UTF-8");
 
         try {
-
+            // ①パラメーターの取得
+            // 画面の <input type="hidden" name="id"> から「誰（どのカテゴリ）を更新するか」のIDを取得
             int id = Integer.parseInt(request.getParameter("id"));
+            // <input type="text" name="name"> から、新しく書き換えられたカテゴリ名を取得
             String name = request.getParameter("name");
 
             // バリデーション

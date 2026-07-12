@@ -2,6 +2,11 @@
 
 <h2>アカウント追加</h2>
 
+<%-- JavaScriptからエラーメッセージを書き込む --%>
+<p id="errorDisplay" 
+   data-error="<%= request.getAttribute("error") != null ? request.getAttribute("error") : "" %>" 
+   style="color: red; font-weight: bold;"></p>
+
 <%-- 画像などのファイルを含んだデータを、安全にサーバーへ送るための設定
 acrion=送信先 method=送り方 enctype=種類（これがないと画像や写真などのファイルをサーバーに送れない）--%>
 <form action="<%= request.getContextPath() %>/admin/accountCreate" method="post" enctype="multipart/form-data">
@@ -12,23 +17,23 @@ value =Servletに送られる中身の値
 checked =ついている方が最初の設定（デフォルト設定）
 toggleForm =フォームを切り替える（管理者・一般で切り替わる）--%>
 <p>
-<input type="radio" name="role" value="admin" onclick="toggleForm()"> 管理者  
-<input type="radio" name="role" value="user" checked onclick="toggleForm()"> 一般
+<input type="radio" name="role" value="admin" onclick="toggleForm()" ${account.role == 'admin' ? 'checked' : ''}> 管理者  
+<input type="radio" name="role" value="user" onclick="toggleForm()" ${empty account.role || account.role == 'user' ? 'checked' : ''}> 一般
 </p>
 
 <%-- 【共通】 --%>
 名前
-<input type="text" name="name">
+<input type="text" name="name" value="${account.name}">
 <br><br>
 
 メール
-<input type="text" name="email">
+<input type="text" name="email" value="${account.email}">
 <br><br>
 
 ステータス
 <select name="status">
-    <option value="0">アクセス許可</option>
-    <option value="1">アクセス禁止</option>
+    <option value="0" ${account.status == '0' ? 'selected' : ''}>アクセス許可</option>
+    <option value="1" ${account.status == '1' ? 'selected' : ''}>アクセス禁止</option>
 </select>
 <br><br>
 
@@ -47,22 +52,22 @@ toggleForm =フォームを切り替える（管理者・一般で切り替わ�
     <br><br>
 
     ふりがな
-    <input type="text" name="kana">
+    <input type="text" name="kana" value="${account.kana}">
     <br><br>
 
     性別
     <select name="gender">
-        <option value="male">男性</option>
-        <option value="female">女性</option>
+        <option value="male" ${account.gender == 'male' ? 'selected' : ''}>男性</option>
+        <option value="female" ${account.gender == 'female' ? 'selected' : ''}>女性</option>
     </select>
     <br><br>
 
     年齢
-    <input type="number" name="age">
+    <input type="number" name="age" value="${account.age}">
     <br><br>
 
     自己紹介
-    <textarea name="profile"></textarea>
+    <textarea name="profile">${account.profile}</textarea>
     <br><br>
 
 </div>
@@ -86,4 +91,18 @@ function toggleForm(){
         document.getElementById("userForm").style.display = "block";
     }
 }
+
+// 画面が読み込まれた時に自動で動く処理
+window.onload = function() {
+    // 最初に元のフォーム切り替え処理を走らせる
+    toggleForm();
+    // 部屋に隠しておいたエラーメッセージをJavaScriptで安全に取得
+    const errorElement = document.getElementById("errorDisplay");
+    const serverError = errorElement.getAttribute("data-error");
+    
+    // もしエラーがあれば、画面上の文字として表示する
+    if (serverError && serverError !== "") {
+        errorElement.innerText = serverError;
+    }
+};
 </script>

@@ -5,7 +5,6 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
-
 import dao.AccountDAO;
 import model.Account;
 
@@ -21,20 +20,29 @@ public class AccountUpdateServlet extends HttpServlet {
 
         try {
             // ① パラメータ取得
+            // 画面から送られてきた各入力内容を、文字列や数値に変換して受け取る
             int id = Integer.parseInt(request.getParameter("id"));
             String role = request.getParameter("role");
             String name = request.getParameter("name");
             String email = request.getParameter("email");
-            int status = Integer.parseInt(request.getParameter("status"));
+            String statusStr = request.getParameter("status");
 
-            // バリデーションチェック
+            //エラーメッセージを格納するための変数を、最初は「空（null）」で用意する
             String errorMsg = null;
 
-            // 名前のバリデージョン
-            if (name == null || name.trim().isEmpty()) {
-                errorMsg = "名前を入力してください。";
-            } else if (name.length() > 255) {
-                errorMsg = "名前は255文字以内で入力してください。";
+            // ステータスのチェック
+            if (statusStr == null || !statusStr.matches("^[0-9]+$")) {
+                errorMsg = "ステータスを入力してください。";
+            }
+            int status = (statusStr != null && statusStr.matches("^[0-9]+$")) ? Integer.parseInt(statusStr) : 0;
+
+            // 名前のバリデーション
+            if (errorMsg == null) {
+                if (name == null || name.trim().isEmpty()) {
+                    errorMsg = "名前を入力してください。";
+                } else if (name.length() > 255) {
+                    errorMsg = "名前は255文字以内で入力してください。";
+                }
             }
 
             // メールのバリデーション
@@ -50,56 +58,52 @@ public class AccountUpdateServlet extends HttpServlet {
                 }
             }
 
-            // ふりがなのバリデーション
-            if (errorMsg == null && !"admin".equals(role)) {
-                String kana = request.getParameter("kana");
-                // ひらがな（\u3041-\u3096）と、長音（ー）のみを許可する正規表現
-                String kanaPattern = "^[\\u3041-\\u3096ー]*$";
+            // --- ここから一般ユーザーのみのチェック ---
+            String kana = request.getParameter("kana");
+            String gender = request.getParameter("gender");
+            String ageStr = request.getParameter("age");
+            String profile = request.getParameter("profile");
 
-                if (kana != null && !kana.isEmpty()) { // 空文字は許容する場合
-                    if (kana.length() > 255) {
+            if (!"admin".equals(role)) {
+            // ふりがなのバリデーション
+                if (errorMsg == null) {
+                    String kanaPattern = "^[\\u3041-\\u3096ー]*$";
+                    if (kana == null || kana.trim().isEmpty()) {
+                        errorMsg = "ふりがなを入力してください。";
+                    } else if (kana.length() > 255) {
                         errorMsg = "ふりがなは255文字以内で入力してください。";
                     } else if (!kana.matches(kanaPattern)) {
                         errorMsg = "ふりがなは「ひらがな」で入力してください。";
                     }
                 }
-            }
 
             // 性別のバリデーション
-            if (errorMsg == null && !"admin".equals(role)) {
-                String gender = request.getParameter("gender");
-    
-                // 許可する値のリスト（JSPのvalue属性と一致させる）
-                if (gender != null && !gender.isEmpty()) {
-                    if (!"男性".equals(gender) && !"女性".equals(gender) && !"その他".equals(gender)) {
+                if (errorMsg == null) {
+                    if (gender == null || gender.trim().isEmpty()) {
+                        errorMsg = "性別を選択してください。";
+                    } else if (!"男性".equals(gender) && !"女性".equals(gender) && !"その他".equals(gender)) {
                         errorMsg = "性別を正しく選択してください。";
                     }
                 }
             }
 
             // 年齢のバリデーション
-            if (errorMsg == null && !"admin".equals(role)) {
-                String ageStr = request.getParameter("age");
-    
-                if (ageStr == null || ageStr.trim().isEmpty()) {
-                    errorMsg = "年齢を入力してください。";
-                } else {
-                    // 正規表現で「1〜3桁の数字」かチェック
-                    if (!ageStr.matches("^[0-9]{1,3}$")) {
+                if (errorMsg == null) {
+                    if (ageStr == null || ageStr.trim().isEmpty()) {
+                        errorMsg = "年齢を入力してください。";
+                    } else if (!ageStr.matches("^[0-9]{1,3}$")) {
                         errorMsg = "年齢は3桁以内の数字で入力してください。";
                     }
                 }
-            }
 
-            // 自己紹介のバリデーション
-            if (errorMsg == null && !"admin".equals(role)) {
-                String profile = request.getParameter("profile");
-    
-                // 未入力（null）の可能性を考慮し、存在する場合のみ長さをチェック
-                if (profile != null && profile.length() > 1500) {
-                    errorMsg = "自己紹介は1500文字以内で入力してください。";
+            // 年齢のバリデーション
+                if (errorMsg == null) {
+                    if (ageStr == null || ageStr.trim().isEmpty()) {
+                        errorMsg = "年齢を入力してください。";
+                    } else if (!ageStr.matches("^[0-9]{1,3}$")) {
+                        errorMsg = "年齢は3桁以内の数字で入力してください。";
+                    }
                 }
-            }
 
             // 画像のバリデーション
             if (errorMsg == null && !"admin".equals(role)) {
@@ -118,45 +122,53 @@ public class AccountUpdateServlet extends HttpServlet {
                 }
             }
 
+            // ❌ エラーがあった場合の処理（★各セッターの割り当てを厳密に修正しました）
             if (errorMsg != null) {
-                // エラーがある場合は編集画面のJSPへ戻す
-                Account account = dao.findById(id); // 最新の情報をDBから再取得
-                // もし「入力中の名前」を保持したい場合は、ここでaccountにセットし直す
-                // account.setName(name); 
+                Account account = new Account();
+                account.setId(id);
+                account.setRole(role);
+                account.setName(name);   // ★確実にnameをセット
+                account.setEmail(email); // ★確実にemailをセット
+                account.setStatus(status);
+                
+                if (!"admin".equals(role)) {
+                    account.setKana(kana);
+                    account.setGender(gender); // ★性別にはgenderだけをセット
+                    
+                    if (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) {
+                        account.setAge(Integer.parseInt(ageStr));
+                    } else {
+                        account.setAge(0);
+                    }
+                    account.setProfile(profile);
+                    
+                    // 元の画像パスを維持
+                    Account oldAccount = dao.findById(id);
+                    if (oldAccount != null) {
+                        account.setImagePath(oldAccount.getImagePath());
+                    }
+                }
 
                 request.setAttribute("account", account);
                 request.setAttribute("error", errorMsg);
                 request.getRequestDispatcher("/adminAccountEdit.jsp").forward(request, response);
-                return; // 処理を終了
+                return; 
             }
-            // ----------------------------
 
+            // バリデーション全通過：DB更新処理
             if ("admin".equals(role)) {
-                // 管理者更新
                 dao.updateAdmin(id, name, email, status);
             } else {
-                // 一般ユーザー
-                String kana = request.getParameter("kana");
-                String gender = request.getParameter("gender");
-
-                String ageStr = request.getParameter("age");
-                int age = 0;
-                if (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) {
-                    age = Integer.parseInt(ageStr);
-                }
-
-                String profile = request.getParameter("profile");
+                int age = (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) ? Integer.parseInt(ageStr) : 0;
                 Part image = request.getPart("image");
-
                 dao.updateUser(id, name, email, status, kana, gender, age, profile, image);
             }
 
-            // ③ 成功時は一覧へリダイレクト
+            // 成功時は一覧へリダイレクト
             response.sendRedirect(request.getContextPath() + "/admin/accountList");
 
         } catch (Exception e) {
             e.printStackTrace();
-            // エラー時も一覧に戻すか、エラーページへ
             response.sendRedirect(request.getContextPath() + "/admin/accountList");
         }
     }

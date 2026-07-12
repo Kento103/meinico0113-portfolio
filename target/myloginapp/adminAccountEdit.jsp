@@ -20,7 +20,7 @@
     <%-- 共通項目：IDとロール --%>
     <input type="hidden" name="id" value="<%= account.getId() %>">
 
-    <%-- ★新規追加：一般、管理者切替ラジオボタン --%>
+    <%-- 一般、管理者切替ラジオボタン --%>
     <div style="margin-bottom: 15px;">
         種別：
         <input type="radio" name="role" value="user" id="roleUser" <%= "user".equals(role) ? "checked" : "" %> onchange="switchFields()">
@@ -32,11 +32,8 @@
 
     <hr region="separator">
 
-    <%-- ★管理者用項目グループ --%>
-    <div id="adminFields">
-        <h3>管理者項目</h3>
-
-        <%-- 管理者の場合：名前・メール・ステータスのみ --%>
+    <%-- 一般ユーザー用項目・管理者用項目グループ共通 --%>
+    <div style="margin-bottom: 15px;">
         名前：<input type="text" name="name" value="<%= account.getName() %>" required maxlength="255"><br>
         メール：<input type="email" name="email" value="<%= account.getEmail() %>" required maxlength="255"><br>
         ステータス：
@@ -46,18 +43,15 @@
         </select><br>
     </div>
 
+    <%-- 管理者用項目グループ（ラジオボタンで管理者が選ばれた場合は、共通項目以外に表示するものがないため空でOK） --%>
+    <div id="adminFields" style="display:none;"></div>
+
      <%-- 一般ユーザー用項目グループ --%>
     <div id="userFields">
-        <h3>一般項目</h3>
         <%-- 
           一般ユーザー選択時でも、更新用DAOがnameやemail、statusのパラメータを
           要求する場合は、ここに現在の値をセットして送信できるようにしておく
         --%>
-        <%-- ★一般ユーザーの場合：ふりがな〜画像変更のみ --%>
-        <%-- ※DAOのuserがname, email, statusを要求するため、hiddenで値を送る必要がある --%>
-        <input type="hidden" name="name" value="<%= account.getName() %>">
-        <input type="hidden" name="email" value="<%= account.getEmail() %>">
-        <input type="hidden" name="status" value="<%= account.getStatus() %>">
 
         ふりがな：<input type="text" name="kana" value="<%= kana %>" maxlength="255"><br>
         性別：
@@ -65,7 +59,7 @@
         <input type="radio" name="gender" value="女性" <%= "女性".equals(gender) ? "checked" : "" %>>女性
         <input type="radio" name="gender" value="その他" <%= "その他".equals(gender) ? "checked" : "" %>>その他<br>
 
-        年齢：<input type="number" name="age" min="0" max="150" value="<%= account.getAge() %>" oninput="if(value.length>3)value=value.slice(0,3)">
+        年齢：<input type="number" name="age" min="0" max="999" value="<%= account.getAge() %>" oninput="if(value.length>3)value=value.slice(0,3)"><br>
 
         自己紹介：<br>
         <%-- textareaはタグの間に値を挟む --%>
@@ -108,5 +102,12 @@ function switchFields() {
 // 画面読み込み時に初期状態に合わせて表示を切り替える
 window.onload = function() {
     switchFields();
+
+    // サーバーから届いたエラーメッセージを表示する処理
+    const errorElement = document.getElementById("errorDisplay");
+    const serverError = errorElement.getAttribute("data-error");
+    if (serverError && serverError !== "") {
+        errorElement.innerText = serverError;
+    }
 };
 </script>

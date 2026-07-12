@@ -26,10 +26,16 @@
 <div class="profile-box">
     <div class="profile-header">
         <c:choose>
+            <%-- 【条件：画像パスが空（未登録）の場合】--%>
             <c:when test="${empty user.imagePath}">
                 <img src="uploads/default.png" class="prof-img" alt="デフォルト画像">
             </c:when>
+
+            <%-- 【条件：それ以外（画像パスがちゃんと入っている場合）】 --%>
             <c:otherwise>
+                <%-- uploads/ → フォルダの配下にある、登録された画像ファイル名を表示
+                     c:out → を使うことで、ファイル名に変なスクリプトが含まれていても安全に無害化（サニタイズ）する
+                    onerror属性 → 万が一、DBに名前はあるのにサーバーから画像ファイルが消えていた（404エラー）場合、JavaScriptが自動で動き、その場でデフォルト画像に差し替えて画面が壊れるのを防ぐ --%>
                 <img src="uploads/<c:out value='${user.imagePath}' />" class="prof-img" onerror="this.src='uploads/default.png';" alt="プロフィール画像">
             </c:otherwise>
         </c:choose>

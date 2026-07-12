@@ -42,8 +42,8 @@
     </div>
 
     <h2>ユーザーランキング</h2>
-    <div id="user-data-store" style="display: none;"> /* データの一時置き場のためユーザー側の画面には表示されない */
-        <c:forEach var="acc" items="${userList}"> /* Servletから受け取ったユーザーの数だけ繰り返す */
+    <div id="user-data-store" style="display: none;"> /* データの一時置き場 */
+        <c:forEach var="acc" items="${userList}">
             <span class="user-raw-data" 
                   data-id="${acc.id}"
                   data-kana="${acc.kana}"
@@ -58,11 +58,13 @@
         
     <script>
         function renderUserList() {
+            // ① 画面の準備とデータの取得
             const container = document.getElementById('user-list-container');
             container.innerHTML = ''; 
-
+            // ② 隠しておいたデータを全部集める
             const dataElements = document.querySelectorAll('.user-raw-data');
             
+            // ③ 1人ずつデータを抜き出す（ループ処理）
             dataElements.forEach(el => {
                 const id = el.getAttribute('data-id');
                 const kana = el.getAttribute('data-kana');
@@ -71,6 +73,7 @@
                 const profile = el.getAttribute('data-profile');
                 const likes = el.getAttribute('data-likes');
 
+                // ④ カードの形に組み立てて、画面に貼り付ける
                 const cardHtml = 
                     '<div class="user-card">' +
                         '<strong>ニックネーム: ' + kana + '</strong><br>' +

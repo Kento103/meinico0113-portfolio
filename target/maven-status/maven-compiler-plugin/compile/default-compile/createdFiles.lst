@@ -19,6 +19,7 @@ dao/AccountDAO.class
 servlet/AccountNewServlet.class
 dao/ContactDAO.class
 servlet/CategoryUpdateServlet.class
+filter/AuthFilter.class
 servlet/CategoryEditServlet.class
 servlet/AccountListServlet.class
 servlet/AccountUpdateServlet.class

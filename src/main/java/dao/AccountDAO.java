@@ -286,13 +286,23 @@ public class AccountDAO {
 
     public void insertContact(String category, String content) throws Exception {
     // statusは画像に合わせて「未対応」をデフォルト値として挿入
-    String sql = "INSERT INTO contacts (category, content, status, created_at) VALUES (?, ?, '未対応', NOW())";
+        String sql = "INSERT INTO contacts (category, content, status, created_at) VALUES (?, ?, '未対応', NOW())";
 
-    try (Connection conn = DBManager.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, category);
-        ps.setString(2, content);
-        ps.executeUpdate();
+        try (Connection conn = DBManager.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, category);
+            ps.setString(2, content);
+            ps.executeUpdate();
+        }
     }
-}
+
+    /* 指定したIDのアカウントをDBから完全に削除する */
+    public void hardDelete(int id) throws Exception {
+        String sql = "DELETE FROM users WHERE id = ?";
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        }
+    }
 }

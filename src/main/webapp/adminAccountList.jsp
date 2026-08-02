@@ -88,5 +88,6 @@ int totalPages = (int)request.getAttribute("totalPages");
     <% } %>
 
 <% } %>
-
 </div>
+
+<a href="<%= request.getContextPath() %>/admin/AdminServlet">管理者画面に戻る</a>

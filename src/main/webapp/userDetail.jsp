@@ -45,7 +45,7 @@
             // 画像があるかどうかの条件分岐
             let imageHtml = '';
             if (imagePath && imagePath.trim() !== '') {
-                imageHtml = '<img src="images/' + imagePath + '" class="profile-img">';
+                imageHtml = '<img src="uploads/' + imagePath + '" class="profile-img"onerror="this.src=\'uploads/default.png\';">';
             } else {
                 imageHtml = '<div style="background: #eee; height: 200px; text-align: center; line-height: 200px;">No Image</div>';
             }
@@ -63,13 +63,10 @@
                     '<p><strong>性別：</strong> ' + gender + ' / <strong>年齢：</strong> ' + age + '歳</p>' +
                     '<hr>' +
                     '<p><strong>自己紹介：</strong><br>' + profile + '</p>' +
-                    '<p><strong>❤ 現在のいいね数：</strong> ' + likes + '</p>' +
+                    '<p><strong>❤ 現在のいいね数：</strong> <span id="like-count">' + likes + '</span></p>' +
 
                     // いいねボタン
-                    '<form action="LikeServlet" method="post">' +
-                        '<input type="hidden" name="targetId" value="' + id + '">' +
-                        '<button type="submit" class="like-btn">いいね！を送る</button>' +
-                    '</form>' +
+                    '<button type="button" class="like-btn" onclick="sendLike(\'' + id + '\')">いいね！を送る</button>' +
                     
                     '<div style="margin-top: 20px; text-align: center;">' +
                         '<a href="UserListServlet">← ランキングに戻る</a>' +
@@ -79,6 +76,42 @@
             // コンテナに流し込む
             container.insertAdjacentHTML('beforeend', cardHtml);
         }
+
+        // 非同期でいいねを送信する関数
+    function sendLike(targetId) {
+        const formData = new URLSearchParams();
+        formData.append('targetId', targetId);
+
+        fetch('UserRankingServlet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('ネットワークエラーが発生しました');
+            }
+            return response.text();
+        })
+        .then(data => {
+            // 通信成功時いいね数の表示を更新
+            const likeCountEl = document.getElementById('like-count');
+            if (likeCountEl) {
+                if (data === "ok") {
+                    let currentLikes = parseInt(likeCountEl.textContent, 10);
+                    likeCountEl.textContent = currentLikes + 1;
+                } else {
+                    likeCountEl.textContent = data; // サーブレットから数値が返ってくる場合
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('いいねの送信に失敗しました');
+        });
+    }
 
         // ページが読み込まれたら実行
         window.addEventListener('DOMContentLoaded', renderUserDetail);

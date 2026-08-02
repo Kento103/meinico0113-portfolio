@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-/* @WebServlet("/LoginServlet") 
- ブラウザからこのプログラムを呼び出せるようになる */
+/* ブラウザからこのプログラムを呼び出せるようになる */
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;

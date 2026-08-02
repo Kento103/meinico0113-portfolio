@@ -141,8 +141,22 @@ public class AccountCreateServlet extends HttpServlet {
                 dao.insertAdmin(name, email, "1111", status);
             } else {
                 int age = (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) ? Integer.parseInt(ageStr) : 0;
-                Part image = request.getPart("image");
-                dao.insertUser(name, email, "1111", status, name, kana, gender, age, profile, image);
+Part image = request.getPart("image");
+
+//　実体ファイルをサーバー上の uploads フォルダに保存する処理
+if (image != null && image.getSize() > 0) {
+    // サーバー上の実際の「uploads」フォルダのパスを取得
+    String uploadPath = getServletContext().getRealPath("/uploads");
+    java.io.File uploadDir = new java.io.File(uploadPath);
+    if (!uploadDir.exists()) {
+        uploadDir.mkdir(); // フォルダがなければ自動作成
+    }
+    // ファイル名を取得して保存
+    String fileName = java.nio.file.Paths.get(image.getSubmittedFileName()).getFileName().toString();
+    image.write(uploadPath + java.io.File.separator + fileName);
+}
+
+dao.insertUser(name, email, "1111", status, name, kana, gender, age, profile, image);
             }
 
             // 成功時は一覧へリダイレクト

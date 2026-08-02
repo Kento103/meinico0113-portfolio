@@ -5,6 +5,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import dao.CategoryDAO;
+import model.Category;
 
 @WebServlet("/admin/categoryUpdate")
 public class CategoryUpdateServlet extends HttpServlet {
@@ -21,20 +22,40 @@ public class CategoryUpdateServlet extends HttpServlet {
             // <input type="text" name="name"> から、新しく書き換えられたカテゴリ名を取得
             String name = request.getParameter("name");
 
-            // バリデーション
-            if (name == null || name.trim().length() == 0 || name.length() > 255) {
+            if (name != null) {
+                name = name.trim(); // 前後の空白を削除
+            }
 
-                request.setAttribute("error", "カテゴリ名は255文字以内で入力してください");
+            // バリデーション
+            String errorMsg = null;
+
+            if (name == null || name.isEmpty()) {
+                errorMsg = "カテゴリ名を入力してください。";
+            } else if (name.length() > 255) {
+                errorMsg = "カテゴリ名は255文字以内で入力してください。";
+            }
+
+            // エラーがある場合はJSPに戻す
+            if (errorMsg != null) {
+                // 入力内容とIDを保持したCategory オブジェクトを作成してセット
+                Category category = new Category();
+                category.setId(id);
+               // 255文字超えの時は入力内容をクリアにしておくことでコード流出を防ぐ
+                category.setName(name.length() > 255 ? "" : name);
+
+                request.setAttribute("error", errorMsg);
+                request.setAttribute("category", category);
 
                 request.getRequestDispatcher("/adminCategoryEdit.jsp")
-                        .forward(request, response);
-
+                       .forward(request, response);
                 return;
             }
 
+            // DB更新処理
             CategoryDAO dao = new CategoryDAO();
             dao.update(id, name);
 
+            // 一覧へリダイレクト
             response.sendRedirect(request.getContextPath() + "/admin/categoryList");
 
         } catch (Exception e) {

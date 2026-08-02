@@ -6,6 +6,7 @@ import java.util.*;
 import javax.servlet.http.Part;
 
 import model.Account;
+import model.Category;
 import servlet.DBManager;
 
 public class AccountDAO {
@@ -297,11 +298,66 @@ public class AccountDAO {
     }
 
     /* 指定したIDのアカウントをDBから完全に削除する */
-    public void hardDelete(int id) throws Exception {
-        String sql = "DELETE FROM users WHERE id = ?";
+public void hardDelete(int id) throws Exception {
+    String deletePostsSql = "DELETE FROM posts WHERE user_id = ?";
+    String deleteUserSql = "DELETE FROM users WHERE id = ?";
+
+    try (Connection conn = DBManager.getConnection()) {
+        // トランザクション開始（途中で失敗した時に元に戻せるようにする）
+        conn.setAutoCommit(false);
+
+        try (PreparedStatement psPosts = conn.prepareStatement(deletePostsSql);
+             PreparedStatement psUser = conn.prepareStatement(deleteUserSql)) {
+
+            // 関連するpostsテーブルのデータを削除
+            psPosts.setInt(1, id);
+            psPosts.executeUpdate();
+
+            // usersテーブル本体のデータを削除
+            psUser.setInt(1, id);
+            psUser.executeUpdate();
+
+            // どちらも成功したらDBに反映
+            conn.commit();
+
+        } catch (Exception e) {
+            // エラーが発生したら元の状態にロールバック
+            conn.rollback();
+            throw e;
+        } finally {
+            // 自動コミットモードを元に戻す
+            conn.setAutoCommit(true);
+        }
+    }
+}
+
+/* カテゴリー全件取得メソッド */
+    public List<Category> findAllCategories() throws Exception {
+        List<Category> list = new ArrayList<>();
+        String sql = "SELECT id, name FROM categories ORDER BY id";
+
+        try (Connection conn = DBManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Category cat = new Category();
+                cat.setId(rs.getInt("id"));
+                cat.setName(rs.getString("name"));
+                list.add(cat);
+            }
+        }
+        return list;
+    }
+
+    /* カテゴリー新規登録メソッド */
+    public void insertCategory(String name) throws Exception {
+        String sql = "INSERT INTO categories (name) VALUES (?)";
+
         try (Connection conn = DBManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            
+            ps.setString(1, name);
             ps.executeUpdate();
         }
     }

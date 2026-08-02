@@ -21,6 +21,6 @@
     </div>
     <a class="menu-link" href="UserEditServlet">プロフィール</a><br>
     <a href="${pageContext.request.contextPath}/settings.jsp">設定（メアド・パスワード変更）</a><br>
-    <a href="index.jsp">ログアウト</a>
+    <a href="${pageContext.request.contextPath}/LogoutServlet">ログアウト</a>
 </body>
 </html>

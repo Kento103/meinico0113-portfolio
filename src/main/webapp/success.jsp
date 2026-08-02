@@ -31,7 +31,7 @@
 </a>
 </p>
 
-    <a href="index.jsp">ログアウト（戻る）</a>
+<a href="${pageContext.request.contextPath}/LogoutServlet">ログアウト</a>
 
     <script>
         function renderRanking() {

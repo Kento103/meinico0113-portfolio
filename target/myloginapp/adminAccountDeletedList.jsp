@@ -14,7 +14,7 @@
 
 <div style="margin-bottom: 10px;">
     <a href="<%= request.getContextPath() %>/admin/accountList">
-        アカウント一覧（通常）に戻る
+        アカウント一覧に戻る
     </a>
 </div>
 

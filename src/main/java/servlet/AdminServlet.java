@@ -25,7 +25,7 @@ public class AdminServlet extends HttpServlet {
     // 画面に「〇〇さん いいね数：5個」のような文字のリストを表示するため、Stringを詰めるリストを作る
     List<String> rankingList = new ArrayList<>();
     
-    // DB接続情報の定義（LoginServletと同じものを使用）
+    // DB接続情報の定義
     String url = "jdbc:mysql://localhost:3306/myloginapp_db";
     String user = "root";
     String pass = "koyu0104";

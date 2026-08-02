@@ -38,11 +38,11 @@
 
     <div style="margin-top: 10px;">
         <a href="<%= request.getContextPath() %>/index.jsp">ログイン</a>
-        <a href="ContactServlet">お問い合わせ</a> </div>
+        <a href="ContactServlet">お問い合わせ</a>
     </div>
 
     <h2>ユーザーランキング</h2>
-    <div id="user-data-store" style="display: none;"> /* データの一時置き場 */
+    <div id="user-data-store" style="display: none;">
         <c:forEach var="acc" items="${userList}">
             <span class="user-raw-data" 
                   data-id="${acc.id}"
@@ -82,16 +82,52 @@
                         '<p>❤ 現在のいいね数: <strong id="like-count-' + id + '">' + likes + '</strong></p>' +
                         '<div class="button-group">' +
                             '<a href="UserDetailServlet?id=' + id + '" class="btn detail-btn">詳細を見る</a>' +
-                            '<form action="LikeServlet" method="post" style="margin: 0;">' +
-                                '<input type="hidden" name="targetId" value="' + id + '">' +
-                                '<button type="submit" class="btn like-btn">いいね！</button>' +
-                            '</form>' +
+                            '<button type="button" class="btn like-btn" onclick="sendLike(\'' + id + '\')">いいね！</button>' +
                         '</div>' +
                     '</div>';
 
                 container.insertAdjacentHTML('beforeend', cardHtml);
             });
         }
+
+        // 非同期でいいねを送信する関数
+    function sendLike(targetId) {
+        // サーブレットに渡すデータ
+        const formData = new URLSearchParams();
+        formData.append('targetId', targetId);
+
+        fetch('UserRankingServlet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('ネットワークエラーが発生しました');
+            }
+            return response.text();
+        })
+        .then(data => {
+            // 通信成功時画面の「いいね数」の表示を更新する
+            const likeCountEl = document.getElementById('like-count-' + targetId);
+            if (likeCountEl) {
+                // サーブレットから最新のいいね数が返ってくる場合はdataをそのままセット
+                // 単純に+1するだけなら以下のように記述
+                if (data === "ok") {
+                let currentLikes = parseInt(likeCountEl.textContent, 10);
+                likeCountEl.textContent = currentLikes + 1;
+            } else {
+                likeCountEl.textContent = data; // 最新値が文字列で届いた場合
+            }
+        }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('いいねの送信に失敗しました');
+        });
+    }
 
         window.addEventListener('DOMContentLoaded', renderUserList);
     </script>

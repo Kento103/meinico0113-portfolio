@@ -160,8 +160,20 @@ public class AccountUpdateServlet extends HttpServlet {
                 dao.updateAdmin(id, name, email, status);
             } else {
                 int age = (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) ? Integer.parseInt(ageStr) : 0;
-                Part image = request.getPart("image");
-                dao.updateUser(id, name, email, status, kana, gender, age, profile, image);
+Part image = request.getPart("image");
+
+// 実体ファイルをサーバー上の uploads フォルダに保存する処理（更新時）
+if (image != null && image.getSize() > 0) {
+    String uploadPath = getServletContext().getRealPath("/uploads");
+    java.io.File uploadDir = new java.io.File(uploadPath);
+    if (!uploadDir.exists()) {
+        uploadDir.mkdir();
+    }
+    String fileName = java.nio.file.Paths.get(image.getSubmittedFileName()).getFileName().toString();
+    image.write(uploadPath + java.io.File.separator + fileName);
+}
+
+dao.updateUser(id, name, email, status, kana, gender, age, profile, image);
             }
 
             // 成功時は一覧へリダイレクト

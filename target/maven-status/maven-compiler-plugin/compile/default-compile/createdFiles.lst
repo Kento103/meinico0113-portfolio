@@ -1,3 +1,4 @@
+servlet/LogoutServlet.class
 servlet/CategoryDeleteServlet.class
 servlet/UserUpdateServlet.class
 servlet/AdminContactListServlet.class
@@ -20,6 +21,7 @@ servlet/AccountNewServlet.class
 dao/ContactDAO.class
 servlet/CategoryUpdateServlet.class
 filter/AuthFilter.class
+servlet/ContactServlet$1.class
 servlet/CategoryEditServlet.class
 servlet/AccountListServlet.class
 servlet/AccountUpdateServlet.class

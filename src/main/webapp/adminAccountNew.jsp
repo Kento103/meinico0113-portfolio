@@ -76,6 +76,8 @@ toggleForm =フォームを切り替える（管理者・一般で切り替わ�
 
 </form>
 
+<a href="<%= request.getContextPath() %>/admin/accountList">アカウント一覧に戻る</a>
+
 <script>
 function toggleForm(){
     // ラジオボタンで「今どっちが選ばれているか」をチェック

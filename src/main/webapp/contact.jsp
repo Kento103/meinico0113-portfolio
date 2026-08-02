@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,10 +20,10 @@
             <div class="field">
                 <label>カテゴリー</label>
                 <select name="category">
-                    <option value="ログインについて">ログインについて</option>
-                    <option value="機能への要望">機能への要望</option>
-                    <option value="不具合報告">不具合報告</option>
-                    <option value="その他">その他</option>
+                    <%-- DBから取得したリストをループ表示 --%>
+                    <c:forEach var="cat" items="${categoryList}">
+                    <option value="${cat.name}">${cat.name}</option>
+                    </c:forEach>
                 </select>
             </div>
             <div class="field">

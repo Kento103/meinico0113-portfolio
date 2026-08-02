@@ -27,6 +27,12 @@ public class AuthFilter implements Filter {
         
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        // キャッシュの無効化（ログアウト後の「戻るボタン」や「URL直打ち」で古い画面を表示させない対策）
+        httpResponse.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        httpResponse.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        httpResponse.setDateHeader("Expires", 0); // Proxies
+
         HttpSession session = httpRequest.getSession(false);
 
         // リクエストされたURLのパスを取得
@@ -38,20 +44,24 @@ public class AuthFilter implements Filter {
         // 直接URLを入力してアクセスしていいページのパスだけを記載する
         boolean isPublicPage = path.equals("/") || 
                                path.equals("/index.jsp") || 
-                               path.equals("/login") || 
-                               path.startsWith("/css/") || 
-                               path.startsWith("/js/");
+                               path.equals("/top.jsp") || 
+                               path.equals("/contact.jsp") ||
+                               path.equals("/LoginServlet") ||
+                               path.equals("/ContactServlet") ||
+                               path.equals( "/UserRankingServlet") ||
+                              path.startsWith( "/css/") || 
+                               path.startsWith("/js/") ||
+                               path.startsWith("/images/");
 
         // セッションからログインユーザー情報を取得
-        // ログインServletで session.setAttribute("xxx", ユーザーオブジェクト) としている名前を入れる
         Object loginUser = (session != null) ? session.getAttribute("account") : null;
 
         if (isPublicPage || loginUser != null) {
             // 公開ページか、ログイン済みならそのまま通す
             chain.doFilter(request, response);
         } else {
-            // 未ログインで制限ページにアクセスしたら、公開画面へリダイレクト
-            httpResponse.sendRedirect(contextPath + "/top.jsp"); 
+            // 未ログインで制限ページにアクセスしたら、サーブレットを経由させて公開画面
+            httpResponse.sendRedirect(contextPath + "/UserRankingServlet"); 
         }
     }
 

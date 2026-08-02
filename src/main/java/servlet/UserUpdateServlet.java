@@ -59,8 +59,6 @@ public class UserUpdateServlet extends HttpServlet {
         // 4. 既存の updateUser メソッドを実行
         AccountDAO dao = new AccountDAO();
         try {
-            // id, name, email, status, kana, gender, age, profile, image
-            // ※emailとstatus、現在の画像は変更しないため、既存の loginUser から値を引き継ぎます
             dao.updateUser(
                 loginUser.getId(),
                 name,

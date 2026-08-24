@@ -16,9 +16,8 @@
 <table border="1">
 
 <tr>
-<th>ID</th>
 <th>名前</th>
-<th>メール</th>
+<th>メールアドレス</th>
 <th>ステータス</th>
 <th>編集</th>
 <th>削除</th>
@@ -36,7 +35,6 @@ for(Account account : list){
 
 <tr>
 
-<td><%= account.getId() %></td>
 <td><%= account.getName() %></td>
 <td><%= account.getEmail() %></td>
 
@@ -90,4 +88,4 @@ int totalPages = (int)request.getAttribute("totalPages");
 <% } %>
 </div>
 
-<a href="<%= request.getContextPath() %>/admin/AdminServlet">管理者画面に戻る</a>
+<a href="<%= request.getContextPath() %>/AdminServlet">管理者画面に戻る</a>

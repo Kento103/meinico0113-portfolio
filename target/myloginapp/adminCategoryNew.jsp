@@ -51,6 +51,8 @@ function validateForm() {
     return true;
 }
 </script>
-
+    <p>
+    <a href="<%= request.getContextPath() %>/admin/categoryList">カテゴリ一覧に戻る</a>
+    </p>
 </body>
 </html>

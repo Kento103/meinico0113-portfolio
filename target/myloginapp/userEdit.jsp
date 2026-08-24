@@ -1,70 +1,74 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>プロフィール編集</title>
 <style>
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-    .preview-img { max-width: 150px; max-height: 150px; display: block; margin-bottom: 10px; }
-    .btn-submit { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; cursor: pointer; border-radius: 4px; }
+    .error-msg { color: red; font-weight: bold; }
+    .preview-img { max-width: 150px; max-height: 150px; display: block; margin: 5px 0; }
 </style>
 </head>
 <body>
 
-    <h1>プロフィール編集</h1>
+<h2>プロフィール編集</h2>
+
+<%-- エラーメッセージ表示エリア --%>
+<c:if test="${not empty error}">
+    <p class="error-msg">${error}</p>
+</c:if>
+
+<!-- enctype="multipart/form-data"> 画像を送信するために必要 -->
+<form action="${pageContext.request.contextPath}/UserProfileUpdateServlet" method="post" enctype="multipart/form-data">
     
-    <!-- 画像アップロードがあるため multipart/form-data を指定 -->
-    <form action="ProfileUpdateServlet" method="post" enctype="multipart/form-data">
-        
-        <!-- プロフィール画像 -->
-        <div class="form-group">
-            <label>プロフィール画像</label>
-            <!-- 現在の画像がある場合は表示 -->
-            <c:if test="${not empty userProfile.imagePath}">
-                <img src="${userProfile.imagePath}" class="preview-img" alt="現在のプロフィール画像">
-            </c:if>
-            <input type="file" name="profileImage" accept="image/*">
-        </div>
+    <!-- ID保持用 -->
+    <input type="hidden" name="id" value="${userProfile.id}">
 
-        <!-- 名前 -->
-        <div class="form-group">
-            <label for="name">名前</label>
-            <input type="text" id="name" name="name" value="${c:out(userProfile.name)}" required>
-        </div>
+    <p>
+        プロフィール画像<br>
+        <c:if test="${not empty userProfile.imagePath}">
+            <img src="${pageContext.request.contextPath}/uploads/${userProfile.imagePath}" class="preview-img" alt="現在の画像">
+        </c:if>
+        <input type="file" name="profileImage" accept="image/*">
+    </p>
 
-        <!-- フリガナ -->
-        <div class="form-group">
-            <label for="furigana">フリガナ</label>
-            <input type="text" id="furigana" name="furigana" value="${c:out(userProfile.furigana)}" required>
-        </div>
+    <p>
+        名前<br>
+        <input type="text" name="name" value="${fn:escapeXml(userProfile.name)}" required>
+    </p>
 
-        <!-- 性別 -->
-        <div class="form-group">
-            <label>性別</label>
-            <label><input type="radio" name="gender" value="male" ${userProfile.gender == 'male' ? 'checked' : ''}> 男性</label>
-            <label><input type="radio" name="gender" value="female" ${userProfile.gender == 'female' ? 'checked' : ''}> 女性</label>
-            <label><input type="radio" name="gender" value="other" ${userProfile.gender == 'other' ? 'checked' : ''}> その他</label>
-        </div>
+    <p>
+        ふりがな<br>
+        <input type="text" name="kana" value="${fn:escapeXml(userProfile.kana)}" required>
+    </p>
 
-        <!-- 年齢 -->
-        <div class="form-group">
-            <label for="age">年齢</label>
-            <input type="number" id="age" name="age" value="${userProfile.age}" min="0" max="150">
-        </div>
+    <p>
+        性別<br>
+        <label><input type="radio" name="gender" value="male" ${userProfile.gender == 'male' ? 'checked' : ''}> 男性</label>
+        <label><input type="radio" name="gender" value="female" ${userProfile.gender == 'female' ? 'checked' : ''}> 女性</label>
+    </p>
 
-        <!-- 自己紹介 -->
-        <div class="form-group">
-            <label for="introduction">自己紹介</label>
-            <textarea id="introduction" name="introduction" rows="5" cols="40">${c:out(userProfile.profile)}</textarea>
-        </div>
+    <p>
+        年齢<br>
+        <input type="number" name="age" value="${fn:escapeXml(userProfile.age)}" required>
+    </p>
 
-        <button type="submit" class="btn-submit">変更を保存する</button>
-    </form>
+    <p>
+        自己紹介<br>
+        <textarea name="introduction" rows="5" cols="40">${fn:escapeXml(userProfile.profile)}</textarea>
+    </p>
 
-    <p><a href="user.jsp">一般画面に戻る</a></p>
+    <p>
+        <input type="submit" value="更新">
+    </p>
+</form>
+
+<p>
+    <a href="${pageContext.request.contextPath}/user.jsp">一般画面に戻る</a>
+</p>
 
 </body>
 </html>

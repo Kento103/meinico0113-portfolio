@@ -38,10 +38,12 @@
             // エラーコードに応じた条件分岐
             let errorMessageHtml = '';
             if (errorCode === '1') {
-                errorMessageHtml = '<p style="color: red;">ユーザー名かパスワードが違います！</p>';
+                errorMessageHtml = '<p style="color: red;">ユーザー名かパスワードが違います.</p>';
             } else if (errorCode === '2') {
-                errorMessageHtml = '<p style="color: red;">ユーザー名が長すぎます（254文字以内で入力してください）</p>';
-            }
+                errorMessageHtml = '<p style="color: red;">ユーザー名は255文字以内で入力してください。</p>';
+            }　else if (errorCode === '3') {
+            errorMessageHtml = '<p style="color: red;">パスワードは8〜32文字の半角英数字、ハイフン(-)、アンダースコア(_)で入力してください。</p>';
+        }
 
             // 組み立てたエラーメッセージを画面に流し込む
             if (errorMessageHtml !== '') {

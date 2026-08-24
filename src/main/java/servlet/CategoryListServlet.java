@@ -19,13 +19,13 @@ public class CategoryListServlet extends HttpServlet {
             // カテゴリデータを専門に扱う部品（CategoryDAO）をインスタンス化
             CategoryDAO dao = new CategoryDAO();
 
-            // ①データベースから全件取得
+            // データベースから全件取得
             // DAOにお願いして、DBにあるすべてのカテゴリを全件取ってきてもらい、Categoryオブジェクトが詰まった「List」として一括で受け取る
             List<Category> list = dao.findAll();
-            // ②JSPへ引き渡す準備
+            // JSPへ引き渡す準備
             // 取得したカテゴリリスト（list）を、次のJSP画面に引き渡すために「categoryList」という名前のポケットに詰め込む
             request.setAttribute("categoryList", list);
-            // ③一覧画面のJSPへフォワード
+            // 一覧画面のJSPへフォワード
             // 荷物（リスト）を持ったまま、カテゴリ一覧表示専用のJSP画面へ処理をバトンタッチする
             // これにより、JSP画面側でループ処理（c:forEachなど）を使って、カテゴリを上から順に並べて表示できる
             request.getRequestDispatcher("/adminCategoryList.jsp")

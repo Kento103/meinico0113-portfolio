@@ -8,11 +8,17 @@
     <title>ログイン成功</title>
 </head>
 <body>
-    <h1>管理画面</h1>
+    <h1>管理者画面</h1>
     
     <p>
         <a href="${pageContext.request.contextPath}/admin/accountList">
-        アカウント管理
+        アカウント一覧
+        </a>
+    </p>
+
+    <p>
+        <a href="${pageContext.request.contextPath}/admin/contactList">
+        問い合わせ一覧
         </a>
     </p>
 
@@ -24,12 +30,6 @@
     </div>
 
     <div id="ranking-container"></div>
-
-<p>
-<a href="${pageContext.request.contextPath}/admin/contactList">
-    問い合わせ一覧
-</a>
-</p>
 
 <a href="${pageContext.request.contextPath}/LogoutServlet">ログアウト</a>
 

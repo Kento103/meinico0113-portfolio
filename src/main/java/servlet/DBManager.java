@@ -7,7 +7,7 @@ public class DBManager {
 
     public static Connection getConnection() throws Exception {
 
-        // ①接続先（URL）の設定
+        // 接続先（URL）の設定
         // どこにある、何のDBに、どんな設定で繋ぐかを指定する「接続文字列（JDBC URL）」
         // ・localhost:3306 → 自分のパソコンの3306番ポートで動いている
         // ・myloginapp_db →「myloginapp_db」という名前のDBに繋ぐ
@@ -17,11 +17,11 @@ public class DBManager {
         String user = "root";
         String password = "koyu0104";
 
-        // ③JDBCドライバのロード
+        // JDBCドライバのロード
         // JavaとDBが会話できるようにするための「通訳（ドライバ）」をメモリ上に読み込んで有効化する
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        // ④接続の確立と返却
+        // 接続の確立と返却
         // 設定したURL、ユーザー名、パスワードを使って実際にDBへ接続
         // 成功すると、DBへの「土管（パイプライン）」のようなオブジェクトが完成し、それをDAOへ送り返す
         return DriverManager.getConnection(url, user, password);

@@ -37,19 +37,20 @@
     <h1>公開画面</h1>
 
     <div style="margin-top: 10px;">
-        <a href="<%= request.getContextPath() %>/index.jsp">ログイン</a>
-        <a href="ContactServlet">お問い合わせ</a>
+        <a href="${pageContext.request.contextPath}/index.jsp">ログイン</a>
+        <a href="${pageContext.request.contextPath}/ContactServlet">お問い合わせ</a>
     </div>
 
-    <h2>ユーザーランキング</h2>
+    <h2>いいねランキング</h2>
+    <!-- 画面には表示しない隠しデータ置き場 -->
     <div id="user-data-store" style="display: none;">
         <c:forEach var="acc" items="${userList}">
             <span class="user-raw-data" 
                   data-id="${acc.id}"
-                  data-kana="${acc.kana}"
-                  data-gender="${acc.gender}"
-                  data-age="${acc.age}"
-                  data-profile="${acc.profile}"
+                  data-kana="<c:out value='${acc.kana}'/>"
+                  data-gender="<c:out value='${acc.gender}'/>"
+                  data-age="<c:out value='${acc.age}'/>"
+                  data-profile="<c:out value='${acc.profile}'/>"
                   data-likes="${acc.likes}"></span>
         </c:forEach>
     </div>
@@ -57,42 +58,79 @@
     <div id="user-list-container"></div>
         
     <script>
-        function renderUserList() {
-            // ① 画面の準備とデータの取得
-            const container = document.getElementById('user-list-container');
-            container.innerHTML = ''; 
-            // ② 隠しておいたデータを全部集める
-            const dataElements = document.querySelectorAll('.user-raw-data');
+    // JS変数としてコンテキストパスを保持
+    // 開発環境と本番環境でアプリ名や階層が変わっても、コードを書き換える必要がなくなる
+    const contextPath = "${pageContext.request.contextPath}";
+
+    // セキュリティ上入れるべきもの、ブラウザがそのままユーザーが入力したJSやHTMLを実行してしまう
+    // 「g」= Global(全体)という意味で文字列に含まれる該当記号
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function renderUserList() {
+        const container = document.getElementById('user-list-container');
+        // 一度中身を空っぽにする
+        container.innerHTML = ''; 
+
+        // データ要素を取得（ユーザー1人分の箱ごと順番を入れ替える必要があるため、user-raw-dataからとってくる）
+        const dataElements = Array.from(document.querySelectorAll('.user-raw-data'));
+        
+        // いいね数（data-likes）の多い順にソート
+        dataElements.sort((a, b) => {
+            const likesA = parseInt(a.dataset.likes, 10) || 0;
+            const likesB = parseInt(b.dataset.likes, 10) || 0;
+            return likesB - likesA; // 多い順
+        });
+
+        // ソート済みの各データ要素からユーザー情報を抽出し、不要なデータをスキップする処理
+        dataElements.forEach(el => {
+            const id = el.dataset.id;
+            const kana = el.dataset.kana;
+            let gender = el.dataset.gender; // constの場合際代入できないため、letを使用
+            const age = el.dataset.age;
+            const profile = el.dataset.profile;
+            const likes = el.dataset.likes;
+
+            if (!id) return;
+
+            if (gender === 'male') {
+                gender = '男性';
+            } else if (gender === 'female') {
+                gender = '女性';
+            }
             
-            // ③ 1人ずつデータを抜き出す（ループ処理）
-            dataElements.forEach(el => {
-                const id = el.getAttribute('data-id');
-                const kana = el.getAttribute('data-kana');
-                const gender = el.getAttribute('data-gender');
-                const age = el.getAttribute('data-age');
-                const profile = el.getAttribute('data-profile');
-                const likes = el.getAttribute('data-likes');
+            const cardHtml = 
+                '<div class="user-card">' +
+                    '<strong>ニックネーム: ' + escapeHtml(kana) + '</strong><br>' +
+                    '<span>性別: ' + escapeHtml(gender) + ' / 年齢: ' + escapeHtml(age) + '歳</span><br>' +
+                    '<p>自己紹介: ' + escapeHtml(profile) + '</p>' +
+                    '<p>❤ 現在のいいね数: <strong id="like-count-' + id + '">' + escapeHtml(likes) + '</strong></p>' +
+                    '<div class="button-group">' +
+                        '<button type="button" class="btn detail-btn" onclick="location.href=\'' + contextPath + '/UserDetailServlet?id=' + id + '\'">詳細を見る</button>' +
+                        '<button type="button" class="btn like-btn" data-id="' + id + '">いいね！</button>' +
+                    '</div>' +
+            '</div>';
 
-                // ④ カードの形に組み立てて、画面に貼り付ける
-                const cardHtml = 
-                    '<div class="user-card">' +
-                        '<strong>ニックネーム: ' + kana + '</strong><br>' +
-                        '<span>性別: ' + gender + ' / 年齢: ' + age + '歳</span><br>' +
-                        '<p>自己紹介: ' + profile + '</p>' +
-                        '<p>❤ 現在のいいね数: <strong id="like-count-' + id + '">' + likes + '</strong></p>' +
-                        '<div class="button-group">' +
-                            '<a href="UserDetailServlet?id=' + id + '" class="btn detail-btn">詳細を見る</a>' +
-                            '<button type="button" class="btn like-btn" onclick="sendLike(\'' + id + '\')">いいね！</button>' +
-                        '</div>' +
-                    '</div>';
+            container.insertAdjacentHTML('beforeend', cardHtml);
+        });
 
-                container.insertAdjacentHTML('beforeend', cardHtml);
+        // すべての「いいね！」ボタンに、クリック時の処理を登録する処理
+        container.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                sendLike(this.getAttribute('data-id'));
             });
-        }
+        });
+    }
 
-        // 非同期でいいねを送信する関数
+    // サーバーへデータを非同期通信し、画面の「いいね数」と並び順をリアルタイムに更新する処理
     function sendLike(targetId) {
-        // サーブレットに渡すデータ
         const formData = new URLSearchParams();
         formData.append('targetId', targetId);
 
@@ -104,24 +142,36 @@
             body: formData.toString()
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('ネットワークエラーが発生しました');
-            }
+            if (!response.ok) throw new Error('ネットワークエラーが発生しました');
             return response.text();
         })
         .then(data => {
-            // 通信成功時画面の「いいね数」の表示を更新する
-            const likeCountEl = document.getElementById('like-count-' + targetId);
-            if (likeCountEl) {
-                // サーブレットから最新のいいね数が返ってくる場合はdataをそのままセット
-                // 単純に+1するだけなら以下のように記述
-                if (data === "ok") {
-                let currentLikes = parseInt(likeCountEl.textContent, 10);
-                likeCountEl.textContent = currentLikes + 1;
+            if (data.trim() === "ok") {
+                // 文字列比較で属性検索（確実な要素取得のため）
+                const rawDataElements = document.querySelectorAll('.user-raw-data');
+                let targetEl = null;
+
+                rawDataElements.forEach(el => {
+                    if (String(el.dataset.id) === String(targetId)) {
+                        targetEl = el;
+                    }
+                });
+                
+                if (targetEl) {
+                    // 数値を+1してセット
+                    let currentLikes = parseInt(targetEl.dataset.likes, 10) || 0;
+                    targetEl.dataset.likes = currentLikes + 1;
+                }
+                
+                // 再並び替え＆再描画
+                renderUserList();
+
             } else {
-                likeCountEl.textContent = data; // 最新値が文字列で届いた場合
+                const likeCountEl = document.getElementById('like-count-' + targetId);
+                if (likeCountEl) {
+                    likeCountEl.textContent = data;
+                }
             }
-        }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -129,7 +179,7 @@
         });
     }
 
-        window.addEventListener('DOMContentLoaded', renderUserList);
-    </script>
+    window.addEventListener('DOMContentLoaded', renderUserList);
+</script>
 </body>
 </html>

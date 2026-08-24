@@ -80,5 +80,8 @@
         // ページが読み込まれたら実行
         window.addEventListener('DOMContentLoaded', renderContactList);
     </script>
+    <p>
+    <a href="<%= request.getContextPath() %>/AdminServlet">管理者画面に戻る</a>
+    </p>
 </body>
 </html>

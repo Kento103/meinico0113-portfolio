@@ -17,24 +17,34 @@ public class UserEditServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // 1. セッションからログイン中のユーザー情報を取得
+        // セッションからログイン中のユーザー情報を取得
         HttpSession session = request.getSession();
-        Account loginUser = (Account) session.getAttribute("account"); // ログイン処理時にセットした名前
+        Account loginUser = (Account) session.getAttribute("account");
         
         if (loginUser == null) {
-            // 未ログインの場合はログイン画面へ戻す
-            response.sendRedirect("index.jsp");
-            return;
+        response.sendRedirect(request.getContextPath() + "/index.jsp");
+        return;
         }
         
-        // 2. 既存の findById メソッドを使って最新の情報をDBから取得
         AccountDAO dao = new AccountDAO();
         Account userProfile = dao.findById(loginUser.getId());
 
-        // 3. 取得したデータをリクエストスコープにセット
-        request.setAttribute("user", userProfile);
+        // エラーメッセージがセッションにあればリクエストスコープへ移動して削除
+        String error = (String) session.getAttribute("error");
+        if (error != null) {
+            request.setAttribute("error", error);
+            session.removeAttribute("error");
+        }
 
-        // 4. 編集画面へフォワード
-        request.getRequestDispatcher("userProfile.jsp").forward(request, response);
+        // エラー時の入力値保持データがあれば、そちらを優先して画面に渡す
+        Account editInput = (Account) session.getAttribute("editInput");
+        if (editInput != null) {
+            request.setAttribute("userProfile", editInput);
+            session.removeAttribute("editInput");
+        } else {
+            request.setAttribute("userProfile", userProfile);
+        }
+
+        request.getRequestDispatcher("/userEdit.jsp").forward(request, response);
     }
 }

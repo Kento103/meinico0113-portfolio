@@ -94,19 +94,40 @@ public class CategoryDAO {
 
         Connection conn = DBManager.getConnection();
 
-        // 指定したIDのレコードの名前を書き換えるSQL
-        String sql = "UPDATE categories SET name=? WHERE id=?";
+        try {
+            // 変更前の旧カテゴリ名を取得する
+            String oldName = "";
+            String selectSql = "SELECT name FROM categories WHERE id = ?";
+            PreparedStatement psSelect = conn.prepareStatement(selectSql);
+            psSelect.setInt(1, id);
+            ResultSet rs = psSelect.executeQuery();
+            if (rs.next()) {
+                oldName = rs.getString("name");
+            }
+            rs.close();
+            psSelect.close();
 
-        PreparedStatement ps = conn.prepareStatement(sql);
+            // categoriesテーブルのカテゴリ名を更新
+            String sql1 = "UPDATE categories SET name = ? WHERE id = ?";
+            PreparedStatement ps1 = conn.prepareStatement(sql1);
+            ps1.setString(1, name);
+            ps1.setInt(2, id);
+            ps1.executeUpdate();
+            ps1.close();
 
-        ps.setString(1, name);  // 1番目の?：新しい名前
-        ps.setInt(2, id);       // 2番目の?：対象のID
+            // contactsテーブルの旧カテゴリ名も新しいカテゴリ名に一括更新
+            if (!oldName.isEmpty()) {
+                String sql2 = "UPDATE contacts SET category = ? WHERE category = ?";
+                PreparedStatement ps2 = conn.prepareStatement(sql2);
+                ps2.setString(1, name);
+                ps2.setString(2, oldName);
+                ps2.executeUpdate();
+                ps2.close();
+            }
 
-        // データベースを更新（UPDATE実行）
-        ps.executeUpdate();
-
-        ps.close();
-        conn.close();
+        } finally {
+            conn.close();
+        }
     }
 
     /*指定したIDのカテゴリを削除する*/

@@ -6,11 +6,11 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>削除済みアカウント一覧</title>
+    <title>アカウント削除済み一覧</title>
 </head>
 <body>
 
-<h2>削除済みアカウント一覧</h2>
+<h2>アカウント削除済み一覧</h2>
 
 <div style="margin-bottom: 10px;">
     <a href="<%= request.getContextPath() %>/admin/accountList">
@@ -20,12 +20,11 @@
 
 <table border="1" style="border-collapse: collapse; width: 100%;">
     <tr style="background-color: #eee;">
-        <th>ID</th>
+        <th>メールアドレス</th>
         <th>名前</th>
-        <th>メール</th>
         <th>ステータス</th>
-        <th>復元</th>
         <th>完全削除</th>
+        <th>復活</th>
     </tr>
 
     <%
@@ -34,17 +33,11 @@
         for(Account account : list) {
     %>
     <tr>
-        <td><%= account.getId() %></td>
-        <td><%= account.getName() %></td>
         <td><%= account.getEmail() %></td>
+        <td><%= account.getName() %></td>
         <td>
             <%-- 削除済みであることを明示 --%>
             <span style="color: red;">削除済み</span>
-        </td>
-        <td style="text-align: center;">
-            <a href="<%= request.getContextPath() %>/admin/accountRestore?id=<%= account.getId() %>">
-                復元
-            </a>
         </td>
         <td style="text-align: center;">
             <%-- 完全削除は危険な操作なので、JavaScriptで確認ダイアログを出す --%>
@@ -54,13 +47,18 @@
                 完全削除
             </a>
         </td>
+        <td style="text-align: center;">
+            <a href="<%= request.getContextPath() %>/admin/accountRestore?id=<%= account.getId() %>">
+                復活
+            </a>
+        </td>
     </tr>
     <% 
         }
     } else { 
     %>
     <tr>
-        <td colspan="6" style="text-align: center;">削除済みのデータはありません。</td>
+        <td colspan="5" style="text-align: center;">削除済みのデータはありません。</td>
     </tr>
     <% } %>
 </table>

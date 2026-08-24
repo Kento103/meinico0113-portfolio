@@ -15,11 +15,11 @@ public class CategoryCreateServlet extends HttpServlet {
                 request.setCharacterEncoding("UTF-8");
 
         try {
-            // ①パラメーターの取得
+            // パラメーターの取得
             // 入力フォームの <input name="name"> から、ユーザーが入力したカテゴリ名を取得
             String name = request.getParameter("name");
 
-            // ②バリデーション
+            // バリデーション
             if (name == null || name.trim().length() == 0 || name.length() > 255) {
                 // チェックに引っかかった場合は、エラーメッセージをポケット（request）に詰める
                 request.setAttribute("error", "カテゴリ名は255文字以内で入力してください");
@@ -30,11 +30,11 @@ public class CategoryCreateServlet extends HttpServlet {
                 return;
             }
 
-            // ③DBへの登録（すべてのチェックを通過した場合のみ到達）
+            // DBへの登録（すべてのチェックを通過した場合のみ到達）
             // カテゴリ用DAOをインスタンス化し、insertメソッドに入力された名前を渡してDBに保存する
             CategoryDAO dao = new CategoryDAO();
             dao.insert(name);
-            // ④成功時は一覧画面へリダイレクト
+            // 成功時は一覧画面へリダイレクト
             // 無事に登録が完了したので、ブラウザに対してカテゴリ一覧画面を新しく開き直してと指示する
             response.sendRedirect(request.getContextPath() + "/admin/categoryList");
 

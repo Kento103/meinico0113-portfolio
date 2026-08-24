@@ -22,10 +22,10 @@ public class UserListServlet extends HttpServlet {
         AccountDAO dao = new AccountDAO();
         
         try {
-            // 1. DAOを呼び出して「いいね順」のリストを取得
+            // DAOを呼び出して「いいね順」のリストを取得
             List<Account> userList = dao.findGeneralUsersOrderByLikes();
             
-            // 2. 取得したリストを「userList」という名前でJSPに渡す準備
+            // 取得したリストを「userList」という名前でJSPに渡す準備
             request.setAttribute("userList", userList);
             
         } catch (Exception e) {

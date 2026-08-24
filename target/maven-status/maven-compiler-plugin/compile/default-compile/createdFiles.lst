@@ -18,6 +18,7 @@ servlet/AccountDeletedListServlet.class
 servlet/SettingsServlet.class
 dao/AccountDAO.class
 servlet/AccountNewServlet.class
+servlet/ProfileUpdateServlet.class
 dao/ContactDAO.class
 servlet/CategoryUpdateServlet.class
 filter/AuthFilter.class

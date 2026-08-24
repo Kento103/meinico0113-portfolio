@@ -19,11 +19,11 @@ public class SettingsServlet extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
-        String userName = request.getParameter("userName");
+
         String email = request.getParameter("email");
         String pass = request.getParameter("password");
 
-        // セッションから現在のユーザー名を特定する
+        // セッションから現在のユーザーを特定する
         HttpSession session = request.getSession();
         // LoginServletが保存した "account" オブジェクトを取得する
         model.Account currentAccount = (model.Account) session.getAttribute("account");
@@ -35,23 +35,33 @@ public class SettingsServlet extends HttpServlet {
 
         // オブジェクトから「ID」を取得する
         int userId = currentAccount.getId();
+        String errorMsg = null;
 
-        // バリデーション
-        if (userName == null || userName.length() > 255) {
-            request.setAttribute("message", "名前は255文字以内で入力してください");
-            request.getRequestDispatcher("settings.jsp").forward(request, response);
-            return;
+        // メールアドレスのバリデーション
+        String emailPattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
+        if (email == null || email.trim().isEmpty()) {
+            errorMsg = "メールアドレスを入力してください。";
+        } else if (email.length() > 255) {
+            errorMsg = "メールアドレスは255文字以内で入力してください。";
+        } else if (!email.matches(emailPattern)) {
+            errorMsg = "正しいメールアドレスの形式で入力してください。";
         }
 
-        if (email == null || email.length() > 255 ||
-            !email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            request.setAttribute("message", "メールアドレスの形式が正しくありません");
-            request.getRequestDispatcher("settings.jsp").forward(request, response);
-            return;
+        //　パスワードのバリデーション
+        if (errorMsg == null) {
+            String passPattern = "^[a-zA-Z0-9_-]{8,32}$";
+            if (pass == null || pass.trim().isEmpty()) {
+                errorMsg = "新しいパスワードを入力してください。";
+            } else if (!pass.matches(passPattern)) {
+                errorMsg = "パスワードは8〜32文字の半角英数字と_（アンダーバー）-（ハイフン）のみ使用可能です。";
+            }
         }
 
-        if (pass == null || !pass.matches("^[a-zA-Z0-9_-]{8,32}$")) {
-            request.setAttribute("message", "パスワードは8〜32文字の半角英数字（_-含む）で入力してください");
+        // エラーがあった場合は入力値を保持してJSPへ戻す
+        if (errorMsg != null) {
+            request.setAttribute("message", errorMsg);
+            request.setAttribute("email", email);
+            request.setAttribute("password", pass);
             request.getRequestDispatcher("settings.jsp").forward(request, response);
             return;
         }
@@ -66,15 +76,14 @@ public class SettingsServlet extends HttpServlet {
             try (Connection conn = DriverManager.getConnection(url, user, dbPass)) {
                 
                 System.out.println("--- デバッグ開始 ---");
-                System.out.println("セッションのユーザー名: [" + currentAccount + "]");
+                System.out.println("更新対象ID: [" + userId + "]");
 
-                // 現在の名前(currentUserName)を条件に更新
-                String sql = "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?";
+               // emailとpasswordを更新するSQL
+                String sql = "UPDATE users SET email = ?, password = ? WHERE id = ?";
                 PreparedStatement pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, userName);
-                pstmt.setString(2, email);
-                pstmt.setString(3, pass);
-                pstmt.setInt(4, userId);
+                pstmt.setString(1, email);
+                pstmt.setString(2, pass);
+                pstmt.setInt(3, userId);
 
                 int result = pstmt.executeUpdate();
 
@@ -82,7 +91,8 @@ public class SettingsServlet extends HttpServlet {
                 System.out.println("--- デバッグ終了 ---");
 
                 if (result > 0) {
-                    session.setAttribute("user", userName);
+                    currentAccount.setEmail(email);
+                    currentAccount.setPassword(pass);
                     request.setAttribute("message", "設定を保存しました");
                 } else {
                     request.setAttribute("message", "DBの更新に失敗しました（一致するユーザーが見つかりません）");

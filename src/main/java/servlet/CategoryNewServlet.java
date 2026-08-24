@@ -38,7 +38,7 @@ public class CategoryNewServlet extends HttpServlet {
             return;
         }
 
-        // 2. 255文字以内チェック
+        // 255文字以内チェック
         if (name.length() > 255) {
             request.setAttribute("errorMessage", "カテゴリ名は255文字以内で入力してください。");
             request.getRequestDispatcher("/adminCategoryNew.jsp").forward(request, response);

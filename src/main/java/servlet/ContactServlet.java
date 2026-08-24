@@ -28,11 +28,11 @@ public class ContactServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
-            // 1. DBからカテゴリー一覧を取得
+            // DBからカテゴリー一覧を取得
             AccountDAO dao = new AccountDAO();
-            List<Category> categoryList = dao.findAllCategories(); // ★カテゴリー全件取得メソッド（後述）
+            List<Category> categoryList = dao.findAllCategories();
 
-            // 2. リクエストスコープにセット
+            // リクエストスコープにセット
             request.setAttribute("categoryList", categoryList);
 
         } catch (Exception e) {
@@ -49,14 +49,13 @@ public class ContactServlet extends HttpServlet {
         String content = request.getParameter("content");
 
         try {
-            // 1. DBに保存（ステータスはデフォルトの「未対応」で保存）
+            // DBに保存（ステータスは未対応で保存）
             AccountDAO dao = new AccountDAO();
             dao.insertContact(category, content);
 
-            // 2. 運営メールへの送信処理
+            // 運営メールへの送信処理
             sendEmailToAdmin(category, content);
 
-            // 完了画面へ（簡易的にランキングに戻す）
             response.sendRedirect("UserListServlet");
         } catch (Exception e) {
             e.printStackTrace();
@@ -64,7 +63,7 @@ public class ContactServlet extends HttpServlet {
         }
     }
 
-    /* 運営者（Outlook）へのお問い合わせ通知メール送信メソッド */
+    // 問い合わせ通知メール送信メソッド
     private void sendEmailToAdmin(String category, String content) {
         // 送信先・送信元の設定
         final String toEmail = "k.kawara@oplan.co.jp";
@@ -89,12 +88,12 @@ public class ContactServlet extends HttpServlet {
         try {
             // メールの内容を作成
             Message message = new MimeMessage(session);
+            //差出人
             message.setFrom(new InternetAddress(fromEmail, "お問い合わせシステム", "UTF-8"));
+            // 宛先
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            
             // 件名
             message.setSubject("【通知】新しいお問い合わせが届きました");
-
             // 本文
             StringBuilder sb = new StringBuilder();
             sb.append("管理者様\n\n");

@@ -15,17 +15,17 @@ public class AccountEditServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // ① パラメータ取得
+        // パラメータ取得
         int id = Integer.parseInt(request.getParameter("id"));
 
-        // ② DBから1件取得（←これ新しくDAOに作る）
+        // DBから1件取得
         AccountDAO dao = new AccountDAO();
         Account account = dao.findById(id);
 
-        // ③ JSPへ渡す
+        // JSPへ渡す
         request.setAttribute("account", account);
 
-        // ④ 画面へ
+        // 画面へ
         request.getRequestDispatcher("/adminAccountEdit.jsp").forward(request, response);
     }
 }

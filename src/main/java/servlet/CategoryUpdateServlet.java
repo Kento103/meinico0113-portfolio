@@ -16,7 +16,7 @@ public class CategoryUpdateServlet extends HttpServlet {
                 request.setCharacterEncoding("UTF-8");
 
         try {
-            // ①パラメーターの取得
+            // パラメーターの取得
             // 画面の <input type="hidden" name="id"> から「誰（どのカテゴリ）を更新するか」のIDを取得
             int id = Integer.parseInt(request.getParameter("id"));
             // <input type="text" name="name"> から、新しく書き換えられたカテゴリ名を取得

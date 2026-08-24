@@ -1,87 +1,114 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="false" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>${user.kana}さんの詳細</title>
+<title>アカウント詳細</title>
 <style>
-    .detail-card { border: 1px solid #ddd; padding: 20px; border-radius: 10px; max-width: 500px; margin: 20px auto; font-family: sans-serif; }
-    .profile-img { width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
-    .like-btn { background-color: #ff4d4d; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 5px; width: 100%; font-size: 16px; font-weight: bold; }
+    body {
+        font-family: sans-serif;
+        margin: 20px;
+    }
+    .profile-item {
+        margin-bottom: 15px;
+    }
+    .profile-img {
+        max-width: 150px;
+        max-height: 150px;
+        display: block;
+        margin-top: 5px;
+    }
+    /* いいねボタンのスタイル */
+    .btn {
+        display: inline-block;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 4px;
+        border: none;
+        font-size: 13.333px;
+        font-family: Arial;
+        color: white;
+    }
+    .like-btn {
+        background-color: #ff4d4d;
+    }
+
 </style>
 </head>
 <body>
-    <div id="user-raw-data" style="display: none;"
-         data-id="${user.id}"
-         data-name="${user.name}"
-         data-kana="${user.kana}"
-         data-gender="${user.gender}"
-         data-age="${user.age}"
-         data-image-path="${user.imagePath}"
-         data-profile="${user.profile}"
-         data-likes="${user.likes}">
-    </div>
 
-    <div id="detail-card-container"></div>
+    <c:if test="${not empty user}">
+        <div class="profile-item">
+            名前： <c:out value="${user.name}" />
+        </div>
 
-    <script>
-        function renderUserDetail() {
-            const container = document.getElementById('detail-card-container');
-            container.innerHTML = ''; // 初期化
+        <div class="profile-item">
+            ふりがな： <c:out value="${user.kana}" />
+        </div>
 
-            // 隠しタグから属性データを一気に回収
-            const dataEl = document.getElementById('user-raw-data');
-            const id = dataEl.getAttribute('data-id');
-            const name = dataEl.getAttribute('data-name');
-            const kana = dataEl.getAttribute('data-kana');
-            const gender = dataEl.getAttribute('data-gender');
-            const age = dataEl.getAttribute('data-age');
-            const imagePath = dataEl.getAttribute('data-image-path');
-            const profile = dataEl.getAttribute('data-profile');
-            const likes = dataEl.getAttribute('data-likes');
+        <div class="profile-item">
+            性別： 
+        <c:choose>
+            <c:when test="${user.gender == 'male'}">男性</c:when>
+            <c:when test="${user.gender == 'female'}">女性</c:when>
+        <c:otherwise><c:out value="${user.gender}" /></c:otherwise>
+        </c:choose> 
+        </div>
 
-            // 画像があるかどうかの条件分岐
-            let imageHtml = '';
-            if (imagePath && imagePath.trim() !== '') {
-                imageHtml = '<img src="uploads/' + imagePath + '" class="profile-img"onerror="this.src=\'uploads/default.png\';">';
-            } else {
-                imageHtml = '<div style="background: #eee; height: 200px; text-align: center; line-height: 200px;">No Image</div>';
-            }
+        <div class="profile-item">
+            年齢： <c:out value="${user.age}" />歳
+        </div>
 
-            // 元のJSPと全く同じHTML・クラス名・構造を文字列結合で組み立てる
-            const cardHtml = 
-                '<div class="detail-card">' +
-                    '<h1>プロフィール詳細</h1>' +
-                    
-                    // 判定済みの画像HTMLを差し込む
-                    imageHtml +
+        <div class="profile-item">
+            自己紹介：<br>
+            <c:out value="${user.profile}" />
+        </div>
 
-                    '<p><strong>名前：</strong> ' + name + '</p>' +
-                    '<p><strong>フリガナ：</strong> ' + kana + '</p>' +
-                    '<p><strong>性別：</strong> ' + gender + ' / <strong>年齢：</strong> ' + age + '歳</p>' +
-                    '<hr>' +
-                    '<p><strong>自己紹介：</strong><br>' + profile + '</p>' +
-                    '<p><strong>❤ 現在のいいね数：</strong> <span id="like-count">' + likes + '</span></p>' +
+        <div class="profile-item">
+            現在の画像：<br>
+            <c:choose>
+                <c:when test="${not empty user.imagePath}">
+                    <img src="${pageContext.request.contextPath}/uploads/${user.imagePath}" class="profile-img" alt="プロフィール画像">
+                </c:when>
+                <c:otherwise>
+                    <img src="${pageContext.request.contextPath}/uploads/default.png" class="profile-img" alt="デフォルト画像">
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </c:if>
 
-                    // いいねボタン
-                    '<button type="button" class="like-btn" onclick="sendLike(\'' + id + '\')">いいね！を送る</button>' +
-                    
-                    '<div style="margin-top: 20px; text-align: center;">' +
-                        '<a href="UserListServlet">← ランキングに戻る</a>' +
-                    '</div>' +
-                '</div>';
+    <c:if test="${empty user}">
+        <p>ユーザー情報が見つかりませんでした。</p>
+    </c:if>
 
-            // コンテナに流し込む
-            container.insertAdjacentHTML('beforeend', cardHtml);
+    <!-- いいね数表示といいねボタン -->
+        <div class="profile-item">
+            <button type="button" class="btn like-btn" id="like-btn" data-id="${user.id}">いいね！</button>
+        </div>
+    
+    <p>
+        <a href="${pageContext.request.contextPath}/UserRankingServlet">公開画面に戻る</a>
+    </p>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 画面内から ID名がlike-btnである要素を探して取得する
+        const likeBtn = document.getElementById('like-btn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-id');
+                sendLike(targetId);
+            });
         }
+    });
 
-        // 非同期でいいねを送信する関数
+    // 「いいね！」ボタンを押したときに画面をリロードせず、裏側でサーバー通信を行い、画面のいいね数を増やす処理
     function sendLike(targetId) {
         const formData = new URLSearchParams();
         formData.append('targetId', targetId);
 
+        // UserRankingServletへPOST送信
         fetch('UserRankingServlet', {
             method: 'POST',
             headers: {
@@ -90,20 +117,17 @@
             body: formData.toString()
         })
         .then(response => {
-            if (!response.ok) {
-                throw new Error('ネットワークエラーが発生しました');
-            }
+            if (!response.ok) throw new Error('ネットワークエラーが発生しました');
             return response.text();
         })
         .then(data => {
-            // 通信成功時いいね数の表示を更新
             const likeCountEl = document.getElementById('like-count');
             if (likeCountEl) {
                 if (data === "ok") {
                     let currentLikes = parseInt(likeCountEl.textContent, 10);
                     likeCountEl.textContent = currentLikes + 1;
                 } else {
-                    likeCountEl.textContent = data; // サーブレットから数値が返ってくる場合
+                    likeCountEl.textContent = data;
                 }
             }
         })
@@ -112,9 +136,6 @@
             alert('いいねの送信に失敗しました');
         });
     }
-
-        // ページが読み込まれたら実行
-        window.addEventListener('DOMContentLoaded', renderUserDetail);
-    </script>
+</script>
 </body>
 </html>

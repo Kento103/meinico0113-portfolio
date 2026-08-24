@@ -28,7 +28,7 @@ public class UserUpdateServlet extends HttpServlet {
         
         request.setCharacterEncoding("UTF-8");
 
-        // 1. セッションからユーザー情報を取得
+        // セッションからユーザー情報を取得
         HttpSession session = request.getSession();
         Account loginUser = (Account) session.getAttribute("loginUser");
         if (loginUser == null) {
@@ -36,15 +36,15 @@ public class UserUpdateServlet extends HttpServlet {
             return;
         }
 
-        // 2. フォームからの入力値を取得
+        // フォームからの入力値を取得
         String name = request.getParameter("name");
-        String kana = request.getParameter("furigana"); // JSPのname属性「furigana」に合わせる
+        String kana = request.getParameter("furigana");
         String gender = request.getParameter("gender");
         int age = Integer.parseInt(request.getParameter("age"));
-        String profileText = request.getParameter("introduction"); // JSPのname属性「introduction」に合わせる
+        String profileText = request.getParameter("introduction");
         Part imagePart = request.getPart("profileImage");
 
-        // 3. 画像ファイルが選択されている場合はサーバーに物理保存する
+        // 画像ファイルが選択されている場合はサーバーに物理保存する
         if (imagePart != null && imagePart.getSize() > 0) {
             String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
             File uploadDir = new File(uploadPath);
@@ -56,7 +56,7 @@ public class UserUpdateServlet extends HttpServlet {
             imagePart.write(uploadPath + File.separator + fileName);
         }
 
-        // 4. 既存の updateUser メソッドを実行
+        // 既存のupdateUserメソッドを実行
         AccountDAO dao = new AccountDAO();
         try {
             dao.updateUser(
@@ -71,7 +71,7 @@ public class UserUpdateServlet extends HttpServlet {
                 imagePart
             );
 
-            // 5. 成功したら一般画面へリダイレクト
+            // 成功したら一般画面へリダイレクト
             response.sendRedirect("user.jsp");
 
         } catch (Exception e) {

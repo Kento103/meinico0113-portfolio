@@ -4,13 +4,14 @@
 
 <h2>カテゴリ一覧</h2>
 
+<p>
 <a href="${pageContext.request.contextPath}/admin/categoryNew">
 カテゴリ追加
 </a>
+</p>
 
 <table border="1">
 <tr>
-    <th>ID</th>
     <th>名前</th>
     <th>編集</th>
     <th>削除</th>
@@ -18,7 +19,6 @@
 
 <c:forEach var="category" items="${categoryList}">
     <tr>
-        <td>${fn:escapeXml(category.id)}</td>
         <td>${fn:escapeXml(category.name)}</td>
 
         <td>
@@ -35,3 +35,7 @@
     </tr>
 </c:forEach>
 </table>
+
+    <p>
+    <a href="<%= request.getContextPath() %>/admin/contactList">問い合わせ一覧に戻る</a>
+    </p>

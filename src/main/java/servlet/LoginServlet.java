@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-/* ブラウザからこのプログラムを呼び出せるようになる */
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -22,7 +21,7 @@ public class LoginServlet extends HttpServlet {
     private final String DB_USER = "root";
     private final String DB_PASS = "koyu0104";
 
-    // ログイン画面の「送信」ボタンが押された時にここが動く
+    // ログイン画面の送信ボタンが押された時にここが動く
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
@@ -32,9 +31,16 @@ public class LoginServlet extends HttpServlet {
         String inputUser = request.getParameter("username");
         String inputPass = request.getParameter("password");
 
-        // 文字数チェック
+        // ユーザー名の文字数チェック
         if (inputUser != null && inputUser.length() >= 255) {
             response.sendRedirect("index.jsp?error=2");
+            return;
+        }
+
+        // パスワードの形式・文字数チェック
+        String passwordRegex = "^[a-zA-Z0-9_-]{8,32}$";
+        if (inputPass == null || !inputPass.matches(passwordRegex)) {
+            response.sendRedirect("index.jsp?error=3");
             return;
         }
 
@@ -83,12 +89,11 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("index.jsp?error=1");
             }
 
-            // LoginServlet.java の catch 部分を一時的に修正
             } catch (Exception e) {
                 e.printStackTrace();
             // エラー詳細を画面に出す
                 response.getWriter().println("Error: " + e.getMessage());
-                return; // sendRedirectはさせない
+                return;
             } finally {
             // 接続を閉じる
             try { if (conn != null) conn.close(); } catch (Exception e) {}

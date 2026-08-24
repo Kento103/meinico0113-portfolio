@@ -46,12 +46,12 @@ public class AuthFilter implements Filter {
                                path.equals("/index.jsp") || 
                                path.equals("/top.jsp") || 
                                path.equals("/contact.jsp") ||
+                               path.equals("/userDetail.jsp") ||
                                path.equals("/LoginServlet") ||
                                path.equals("/ContactServlet") ||
                                path.equals( "/UserRankingServlet") ||
-                              path.startsWith( "/css/") || 
-                               path.startsWith("/js/") ||
-                               path.startsWith("/images/");
+                               requestURI.contains("/UserDetailServlet") ||
+                               path.startsWith("/uploads/");
 
         // セッションからログインユーザー情報を取得
         Object loginUser = (session != null) ? session.getAttribute("account") : null;

@@ -23,9 +23,10 @@ public class AccountCreateServlet extends HttpServlet {
             String role = request.getParameter("role");
             String name = request.getParameter("name");
             String email = request.getParameter("email");
+            String password = "12345678";
             String statusStr = request.getParameter("status");
 
-            // エラーメッセージを最初は「null」で用意
+            // エラーメッセージを最初はnullで用意
             String errorMsg = null;
 
             // ステータスのチェック
@@ -117,15 +118,12 @@ public class AccountCreateServlet extends HttpServlet {
 
             // エラーがあった場合の処理
             if (errorMsg != null) {
-                // 新規登録には既存のaccountオブジェクトがないため、今回入力された値を「仮のaccountオブジェクト」に詰めてJSPへ返す
+                // 今回入力された値を「仮のaccountオブジェクト」に詰めてJSPへ返す
                 Account account = new Account();
                 account.setRole(role);
                 account.setName(name);
                 account.setEmail(email);
                 account.setStatus(status);
-                // ※もしAccountモデルに一般ユーザー用項目(kana, age等)のセッターがあれば、
-                // お手元の仕様に合わせてここに account.setKana(kana); のように追記してください。
-                // なければリクエストに個別で詰めます。
                 request.setAttribute("kana", kana);
                 request.setAttribute("gender", gender);
                 request.setAttribute("age", ageStr);
@@ -136,35 +134,46 @@ public class AccountCreateServlet extends HttpServlet {
                 return; 
             }
 
-            // バリデーション全通過：DB登録処理
-            if ("admin".equals(role)) {
-                dao.insertAdmin(name, email, "1111", status);
-            } else {
-                int age = (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) ? Integer.parseInt(ageStr) : 0;
-Part image = request.getPart("image");
+ // バリデーション全通過：DB登録処理
+if ("admin".equals(role)) {
+    dao.insertAdmin(name, email, password, status);
+} else {
+    int age = (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) ? Integer.parseInt(ageStr) : 0;
+    
+    // 保存するファイル名を保持する変数
+    String profileImage = null;
 
-//　実体ファイルをサーバー上の uploads フォルダに保存する処理
-if (image != null && image.getSize() > 0) {
-    // サーバー上の実際の「uploads」フォルダのパスを取得
-    String uploadPath = getServletContext().getRealPath("/uploads");
-    java.io.File uploadDir = new java.io.File(uploadPath);
-    if (!uploadDir.exists()) {
-        uploadDir.mkdir(); // フォルダがなければ自動作成
+    // 画像の処理
+    try {
+        Part image = request.getPart("image");
+        if (image != null && image.getSize() > 0 && image.getSubmittedFileName() != null && !image.getSubmittedFileName().isEmpty()) {
+            
+            String uploadPath = getServletContext().getRealPath("/uploads");
+            java.io.File uploadDir = new java.io.File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+            
+            // ファイル名の取得と保存
+            String fileName = java.nio.file.Paths.get(image.getSubmittedFileName()).getFileName().toString();
+            // 重複防止用タイムスタンプ付与（推奨）
+            profileImage = System.currentTimeMillis() + "_" + fileName;
+            image.write(uploadPath + java.io.File.separator + profileImage);
+        }
+    } catch (Exception e) {
+        // 画像がない、または保存失敗時のログ出力（登録処理自体は続行）
+        e.printStackTrace();
     }
-    // ファイル名を取得して保存
-    String fileName = java.nio.file.Paths.get(image.getSubmittedFileName()).getFileName().toString();
-    image.write(uploadPath + java.io.File.separator + fileName);
+
+    dao.insertUser(name, email, password, status, kana, gender, age, profile, profileImage);
 }
 
-dao.insertUser(name, email, "1111", status, name, kana, gender, age, profile, image);
-            }
+// 成功時は一覧へリダイレクト
+response.sendRedirect(request.getContextPath() + "/admin/accountList");
 
-            // 成功時は一覧へリダイレクト
-            response.sendRedirect(request.getContextPath() + "/admin/accountList");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/admin/accountList");
-        }
-    }
+} catch (Exception e) {
+    e.printStackTrace();
+    response.sendRedirect(request.getContextPath() + "/admin/accountList");
+}
+}
 }

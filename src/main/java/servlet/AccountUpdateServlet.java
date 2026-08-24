@@ -19,7 +19,7 @@ public class AccountUpdateServlet extends HttpServlet {
         AccountDAO dao = new AccountDAO();
 
         try {
-            // ① パラメータ取得
+            // パラメータ取得
             // 画面から送られてきた各入力内容を、文字列や数値に変換して受け取る
             int id = Integer.parseInt(request.getParameter("id"));
             String role = request.getParameter("role");
@@ -27,7 +27,7 @@ public class AccountUpdateServlet extends HttpServlet {
             String email = request.getParameter("email");
             String statusStr = request.getParameter("status");
 
-            //エラーメッセージを格納するための変数を、最初は「空（null）」で用意する
+            //エラーメッセージを格納するための変数を、最初はnullで用意する
             String errorMsg = null;
 
             // ステータスのチェック
@@ -40,21 +40,20 @@ public class AccountUpdateServlet extends HttpServlet {
             if (errorMsg == null) {
                 if (name == null || name.trim().isEmpty()) {
                     errorMsg = "名前を入力してください。";
-                } else if (name.length() > 255) {
+            } else if (name.trim().length() > 255) {
                     errorMsg = "名前は255文字以内で入力してください。";
-                }
+            }
             }
 
             // メールのバリデーション
-            if(errorMsg == null){
+            if (errorMsg == null) {
                 String emailPattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$";
-
                 if (email == null || email.trim().isEmpty()) {
                     errorMsg = "メールアドレスを入力してください。";
-                } else if (email.length() > 255) {
+                } else if (email.trim().length() > 255) {
                     errorMsg = "メールアドレスは255文字以内で入力してください。";
-                } else if (!email.matches(emailPattern)) {
-                     errorMsg = "正しいメールアドレスの形式で入力してください。";
+                } else if (!email.trim().matches(emailPattern)) {
+                    errorMsg = "正しいメールアドレスの形式で入力してください。";
                 }
             }
 
@@ -85,9 +84,8 @@ public class AccountUpdateServlet extends HttpServlet {
                         errorMsg = "性別を正しく選択してください。";
                     }
                 }
-            }
 
-            // 年齢のバリデーション
+           // 年齢のバリデーション
                 if (errorMsg == null) {
                     if (ageStr == null || ageStr.trim().isEmpty()) {
                         errorMsg = "年齢を入力してください。";
@@ -96,12 +94,10 @@ public class AccountUpdateServlet extends HttpServlet {
                     }
                 }
 
-            // 年齢のバリデーション
+                // 自己紹介のバリデーション
                 if (errorMsg == null) {
-                    if (ageStr == null || ageStr.trim().isEmpty()) {
-                        errorMsg = "年齢を入力してください。";
-                    } else if (!ageStr.matches("^[0-9]{1,3}$")) {
-                        errorMsg = "年齢は3桁以内の数字で入力してください。";
+                    if (profile != null && profile.length() > 1500) {
+                        errorMsg = "自己紹介は1500文字以内で入力してください。";
                     }
                 }
 
@@ -121,19 +117,20 @@ public class AccountUpdateServlet extends HttpServlet {
                     errorMsg = "画像の読み込み中にエラーが発生しました。";
                 }
             }
+            }
 
-            // ❌ エラーがあった場合の処理（★各セッターの割り当てを厳密に修正しました）
+            // エラーがあった場合の処理
             if (errorMsg != null) {
                 Account account = new Account();
                 account.setId(id);
                 account.setRole(role);
-                account.setName(name);   // ★確実にnameをセット
-                account.setEmail(email); // ★確実にemailをセット
+                account.setName(name);
+                account.setEmail(email);
                 account.setStatus(status);
                 
                 if (!"admin".equals(role)) {
                     account.setKana(kana);
-                    account.setGender(gender); // ★性別にはgenderだけをセット
+                    account.setGender(gender);
                     
                     if (ageStr != null && ageStr.matches("^[0-9]{1,3}$")) {
                         account.setAge(Integer.parseInt(ageStr));

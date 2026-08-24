@@ -19,18 +19,17 @@ public class AccountStatusToggleServlet extends HttpServlet {
 
             AccountDAO dao = new AccountDAO();
 
-            // ① 今のデータ取得
+            // 今のデータ取得
             Account account = dao.findById(id);
 
-            // ② ステータス反転
+            // ステータス反転
             // 今のステータスが 1（有効）なら → 0（無効）にする、そうでなければ → 1（有効）にする
             int newStatus = (account.getStatus() == 1) ? 0 : 1;
 
-            // ③ 更新
+            // 更新
             // 対象の id に対して、新しく計算したステータスを渡して、データベースを更新する
             dao.updateStatus(id, newStatus);
 
-            // ④ 一覧へ
             // 処理が終わったら、ユーザーをアカウント一覧画面へ自動的に転送する
             // これにより、画面がパッと切り替わり、ステータスの表示（有効 ⇔ 無効）が変わったように見える
             response.sendRedirect(request.getContextPath() + "/admin/accountList");

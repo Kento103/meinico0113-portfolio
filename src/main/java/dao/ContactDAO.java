@@ -21,9 +21,8 @@ public class ContactDAO {
         // DBに接続
         Connection conn = DBManager.getConnection();
 
-        // SQL実行：created_at DESC（降順）で最新の問い合わせを上に持ってくる
+        // SQL実行：categoriesテーブルから全件取得する
         String sql = "SELECT * FROM contacts ORDER BY created_at DESC";
-
         PreparedStatement ps = conn.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
 

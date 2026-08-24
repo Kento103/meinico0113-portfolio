@@ -2,16 +2,34 @@
 <%@ page import="model.Account" %>
 <%
     Account account = (Account)request.getAttribute("account");
+    if (account == null) {
+        account = new Account(); // null安全対策
+    }
+
     // ロールの判定
-    String role = (account != null && account.getRole() != null) ? account.getRole() : "user";
+    String role = (account.getRole() != null) ? account.getRole() : "user";
     
     // 一般ユーザー項目の null 対策（画面に "null" と表示されないようにする）
+    String name = (account.getName() != null) ? account.getName() : "";
+    String email = (account.getEmail() != null) ? account.getEmail() : "";
     String kana = (account.getKana() != null) ? account.getKana() : "";
     String gender = (account.getGender() != null) ? account.getGender() : "";
+    int age = account.getAge(); // int型
     String profile = (account.getProfile() != null) ? account.getProfile() : "";
+    String imagePath = account.getImagePath();
+
+    // エラーメッセージの取得
+    String errorMessage = (String) request.getAttribute("error");
 %>
 
-<h2>アカウント編集（<%= role.equals("admin") ? "管理者" : "一般ユーザー" %>）</h2>
+<h2>アカウント編集</h2>
+
+<%-- サーバーからのエラーメッセージ表示エリア --%>
+<div id="errorDisplay" style="color: red; font-weight: bold; margin-bottom: 15px;">
+    <% if (errorMessage != null && !errorMessage.isEmpty()) { %>
+        <%= errorMessage %>
+    <% } %>
+</div>
 
 <form action="<%= request.getContextPath() %>/admin/accountUpdate" 
       method="post" 
@@ -34,12 +52,17 @@
 
     <%-- 一般ユーザー用項目・管理者用項目グループ共通 --%>
     <div style="margin-bottom: 15px;">
-        名前：<input type="text" name="name" value="<%= account.getName() %>" required maxlength="255"><br>
-        メール：<input type="email" name="email" value="<%= account.getEmail() %>" required maxlength="255"><br>
+        名前：
+        <input type="text" name="name" value="${account.name}">
+        <br><br>
+
+        メールアドレス：
+        <input type="text" name="email" value="${account.email}">
+        <br><br>
         ステータス：
         <select name="status">
-            <option value="1" <%= account.getStatus() == 1 ? "selected" : "" %>>アクセス許可</option>
-            <option value="0" <%= account.getStatus() == 0 ? "selected" : "" %>>アクセス禁止</option>
+            <option value="0" <%= account.getStatus() == 0 ? "selected" : "" %>>アクセス許可</option>
+            <option value="1" <%= account.getStatus() == 1 ? "selected" : "" %>>アクセス禁止</option>
         </select><br>
     </div>
 
@@ -53,21 +76,27 @@
           要求する場合は、ここに現在の値をセットして送信できるようにしておく
         --%>
 
-        ふりがな：<input type="text" name="kana" value="<%= kana %>" maxlength="255"><br>
+        ふりがな：
+        <input type="text" name="kana" value="<%= kana %>">
+        <br><br>
         性別：
-        <input type="radio" name="gender" value="男性" <%= "男性".equals(gender) ? "checked" : "" %>>男性
-        <input type="radio" name="gender" value="女性" <%= "女性".equals(gender) ? "checked" : "" %>>女性
-        <input type="radio" name="gender" value="その他" <%= "その他".equals(gender) ? "checked" : "" %>>その他<br>
+        <input type="radio" name="gender" value="male" <%= "male".equals(gender) ? "checked" : "" %>>男性
+        <input type="radio" name="gender" value="female" <%= "female".equals(gender) ? "checked" : "" %>>女性
+        <br>
 
-        年齢：<input type="number" name="age" min="0" max="999" value="<%= account.getAge() %>" oninput="if(value.length>3)value=value.slice(0,3)"><br>
+        年齢：
+        <input type="number" name="age" value="<%= age %>">
+        <br><br>
 
-        自己紹介：<br>
-        <%-- textareaはタグの間に値を挟む --%>
-        <textarea name="profile" rows="4" cols="40" maxlength="1500"><%= profile %></textarea><br>
+        自己紹介
+        <textarea name="profile"><%= profile %></textarea>
+        <br><br>
 
         <%-- 現在の画像がある場合に表示（任意） --%>
-        <% if(account.getImagePath() != null) { %>
-            <p>現在の画像：<br><img src="<%= account.getImagePath() %>" width="100"></p>
+       <% if (imagePath != null && !imagePath.isEmpty()) { %>
+            <p>現在の画像：<br>
+                <img src="<%= request.getContextPath() %>/uploads/<%= imagePath %>" width="100" alt="現在の画像">
+            </p>
         <% } %>
         プロフィール画像変更：<input type="file" name="image"><br>
     </div>
@@ -102,12 +131,5 @@ function switchFields() {
 // 画面読み込み時に初期状態に合わせて表示を切り替える
 window.onload = function() {
     switchFields();
-
-    // サーバーから届いたエラーメッセージを表示する処理
-    const errorElement = document.getElementById("errorDisplay");
-    const serverError = errorElement.getAttribute("data-error");
-    if (serverError && serverError !== "") {
-        errorElement.innerText = serverError;
-    }
 };
 </script>

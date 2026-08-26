@@ -38,7 +38,7 @@
 </form>
 
 <br>
-<a href="${pageContext.request.contextPath}/user.jsp">一般画面へ戻る</a>
+<a href="${pageContext.request.contextPath}/UserServlet">一般画面へ戻る</a>
 
 <script>
 // 画面が読み込まれた時に自動で動く処理

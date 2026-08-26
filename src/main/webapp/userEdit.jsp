@@ -22,7 +22,7 @@
 </c:if>
 
 <!-- enctype="multipart/form-data"> 画像を送信するために必要 -->
-<form action="${pageContext.request.contextPath}/UserProfileUpdateServlet" method="post" enctype="multipart/form-data">
+<form action="${pageContext.request.contextPath}/UserUpdateServlet" method="post" enctype="multipart/form-data">
     
     <!-- ID保持用 -->
     <input type="hidden" name="id" value="${userProfile.id}">
@@ -67,7 +67,7 @@
 </form>
 
 <p>
-    <a href="${pageContext.request.contextPath}/user.jsp">一般画面に戻る</a>
+    <a href="${pageContext.request.contextPath}/UserServlet">一般画面に戻る</a>
 </p>
 
 </body>

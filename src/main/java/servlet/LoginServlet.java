@@ -82,7 +82,7 @@ public class LoginServlet extends HttpServlet {
                 if ("admin".equals(role)) {
                     response.sendRedirect("AdminServlet");
                 } else {
-                    response.sendRedirect("user.jsp");
+                    response.sendRedirect("UserServlet");
                 }
             } else {
                 // ログイン失敗（レコードが見つからない）

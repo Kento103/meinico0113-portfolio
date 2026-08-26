@@ -35,5 +35,6 @@
 /Users/misakikawara/Desktop/myloginapp/src/main/java/servlet/UserEditServlet.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/servlet/UserListServlet.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/servlet/UserRankingServlet.java
+/Users/misakikawara/Desktop/myloginapp/src/main/java/servlet/UserServlet.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/servlet/UserUpdateServlet.java
 /Users/misakikawara/Desktop/myloginapp/src/main/java/util/DBConnection.java

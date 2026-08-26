@@ -1,3 +1,4 @@
+servlet/UserServlet.class
 servlet/LogoutServlet.class
 servlet/CategoryDeleteServlet.class
 servlet/UserUpdateServlet.class

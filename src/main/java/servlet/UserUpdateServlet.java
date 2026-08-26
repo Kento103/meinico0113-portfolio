@@ -14,7 +14,7 @@ import javax.servlet.http.Part;
 import model.Account;
 import dao.AccountDAO;
 
-@WebServlet("/ProfileUpdateServlet")
+@WebServlet("/UserUpdateServlet")
 @MultipartConfig(
     fileSizeThreshold = 1024 * 1024 * 2, // 2MB
     maxFileSize = 1024 * 1024 * 10,      // 10MB
@@ -32,13 +32,17 @@ public class UserUpdateServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account loginUser = (Account) session.getAttribute("loginUser");
         if (loginUser == null) {
+            loginUser = (Account) session.getAttribute("account"); // ★追加
+        }
+
+        if (loginUser == null) {
             response.sendRedirect("index.jsp");
             return;
         }
 
         // フォームからの入力値を取得
         String name = request.getParameter("name");
-        String kana = request.getParameter("furigana");
+        String kana = request.getParameter("kana");
         String gender = request.getParameter("gender");
         int age = Integer.parseInt(request.getParameter("age"));
         String profileText = request.getParameter("introduction");
@@ -56,9 +60,9 @@ public class UserUpdateServlet extends HttpServlet {
             imagePart.write(uploadPath + File.separator + fileName);
         }
 
-        // 既存のupdateUserメソッドを実行
         AccountDAO dao = new AccountDAO();
         try {
+            // DBのプロフィール情報を更新
             dao.updateUser(
                 loginUser.getId(),
                 name,
@@ -71,8 +75,15 @@ public class UserUpdateServlet extends HttpServlet {
                 imagePart
             );
 
-            // 成功したら一般画面へリダイレクト
-            response.sendRedirect("user.jsp");
+            // DBから直接最新のデータ（likes含む）を取得する
+            Account dbAccount = dao.findById(loginUser.getId());
+
+            // 取得したDBのデータをそのままセッションにセットする
+            session.setAttribute("account", dbAccount);
+            session.setAttribute("loginUser", dbAccount);
+
+            // 一般画面へ移動
+            response.sendRedirect(request.getContextPath() + "/UserServlet");
 
         } catch (Exception e) {
             e.printStackTrace();

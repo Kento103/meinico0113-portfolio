@@ -1,18 +1,18 @@
 package servlet;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import dao.AccountDAO;
 import dao.CategoryDAO;
+import model.Account;
 import model.Category;
 
 @WebServlet("/AdminServlet")
@@ -25,43 +25,28 @@ public class AdminServlet extends HttpServlet {
     // 画面に「〇〇さん いいね数：5個」のような文字のリストを表示するため、Stringを詰めるリストを作る
     List<String> rankingList = new ArrayList<>();
     
-    // DB接続情報の定義
-    String url = "jdbc:mysql://localhost:3306/myloginapp_db";
-    String user = "root";
-    String pass = "koyu0104";
+    // 一般ユーザーのみのいいねランキング取得処理
+        try {
+            AccountDAO accountDAO = new AccountDAO();
+            List<Account> accountRanking = accountDAO.findGeneralUsersOrderByLikes();
 
-    try {
-        // MySQLのドライバ（接続用プログラム）をロード
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        // データベースへ接続開始
-        Connection conn = DriverManager.getConnection(url, user, pass);
-
-        // SQL: いいね数(likes)の降順で取得
-        // COALESCEを使うと、kanaがNULLならnameを表示する、という動きができる
-        String sql = "SELECT COALESCE(kana, name) AS display_name, likes FROM users ORDER BY likes DESC";
-        PreparedStatement pstmt = conn.prepareStatement(sql);
-        // SQLを実行して、結果（ResultSet）を受け取る
-        ResultSet rs = pstmt.executeQuery();
-
-        // DBからデータが取れた分だけ、上から順番にループ処理する（ランキング順に並んでいる）
-        while (rs.next()) {
-            String displayName = rs.getString("display_name");
-            int likes = rs.getInt("likes");
-    
-            // 文字列を作成してリストに追加
-            String record = displayName + " いいね数：" + likes;
-            rankingList.add(record);
-    
-            // デバッグ用：コンソールに取得できたか出力
-            System.out.println("取得データ: " + record);
-}
+            for (Account acc : accountRanking) {
+                // かなが空でなければかなを表示、空なら氏名を表示
+                String displayName = (acc.getKana() != null && !acc.getKana().isEmpty()) 
+                                        ? acc.getKana() : acc.getName();
+                
+                String record = displayName + " いいね数：" + acc.getLikes();
+                rankingList.add(record);
+                
+                // デバッグ用ログ
+                System.out.println("取得データ: " + record);
+            }
             request.setAttribute("rankingList", rankingList);
-            conn.close();
         } catch (Exception e) {
             e.printStackTrace();
-    }
+        }
 
-        // 2. カテゴリ一覧取得処理
+        // カテゴリ一覧取得処理
         try {
             CategoryDAO categoryDAO = new CategoryDAO();
             List<Category> categoryList = categoryDAO.findAll();
@@ -70,7 +55,7 @@ public class AdminServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // 3. 最後に1回だけフォワードする
+        // 最後に1回だけフォワードする
         request.getRequestDispatcher("success.jsp").forward(request, response);
         
     }

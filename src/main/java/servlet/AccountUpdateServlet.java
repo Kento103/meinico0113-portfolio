@@ -80,7 +80,7 @@ public class AccountUpdateServlet extends HttpServlet {
                 if (errorMsg == null) {
                     if (gender == null || gender.trim().isEmpty()) {
                         errorMsg = "性別を選択してください。";
-                    } else if (!"男性".equals(gender) && !"女性".equals(gender) && !"その他".equals(gender)) {
+                    } else if (!"male".equals(gender) && !"female".equals(gender)) {
                         errorMsg = "性別を正しく選択してください。";
                     }
                 }

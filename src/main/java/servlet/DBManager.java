@@ -13,7 +13,7 @@ public class DBManager {
         // ・myloginapp_db →「myloginapp_db」という名前のDBに繋ぐ
         // ・useUnicode=true&characterEncoding=UTF-8 → 日本語の文字化けを防ぐ設定
         // ・serverTimezone=Asia/Tokyo → 時間の基準を日本時間（東京）にする設定
-        String url = "jdbc:mysql://localhost:3306/myloginapp_db?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Tokyo";
+        String url = "jdbc:mysql://localhost:3310/myloginapp_db?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Tokyo";
         String user = "root";
         String password = "koyu0104";
 

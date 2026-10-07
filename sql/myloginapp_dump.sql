@@ -1,4 +1,4 @@
-USE oplan_deploy;
+USE test;
 -- MySQL dump 10.13  Distrib 8.0.34, for macos13 (arm64)
 --
 -- Host: localhost    Database: myloginapp_db

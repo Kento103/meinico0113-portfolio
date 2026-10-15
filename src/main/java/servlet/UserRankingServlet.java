@@ -16,7 +16,7 @@ import model.Account;
 public class UserRankingServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    // ランキング画面を表示する処理
+    // 1.ランキング画面を表示する処理
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -33,11 +33,11 @@ public class UserRankingServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        // top.jsp に画面遷移（フォワード）
+        // top.jspに画面遷移（フォワード）
         request.getRequestDispatcher("top.jsp").forward(request, response);
     }
 
-    // いいね！ボタンが押された時の処理
+    // 2.いいね！ボタンが押された時の処理
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         

@@ -82,7 +82,7 @@
 
     function renderUserList() {
         const container = document.getElementById('user-list-container');
-        // 一度中身を空っぽにする
+        // 一度HTMLの中身を空っぽにする
         container.innerHTML = ''; 
 
         // データ要素を取得（ユーザー1人分の箱ごと順番を入れ替える必要があるため、user-raw-dataからとってくる）
@@ -99,13 +99,14 @@
         dataElements.forEach(el => {
             const id = el.dataset.id;
             const kana = el.dataset.kana;
-            let gender = el.dataset.gender; // constの場合際代入できないため、letを使用
+            let gender = el.dataset.gender; // constの場合再代入できないため、letを使用
             const age = el.dataset.age;
             const profile = el.dataset.profile;
             const likes = el.dataset.likes;
 
             if (!id) return;
 
+            // 日本語に書き換える（=== 完全一致でないと×）
             if (gender === 'male') {
                 gender = '男性';
             } else if (gender === 'female') {
@@ -124,6 +125,7 @@
                     '</div>' +
             '</div>';
 
+            // カードが上から下へ綺麗に順番通りに並べていく
             container.insertAdjacentHTML('beforeend', cardHtml);
         });
 
@@ -140,6 +142,7 @@
         const formData = new URLSearchParams();
         formData.append('targetId', targetId);
 
+        // 画面を切り替えずに裏側でサーバー通信を行う
         fetch('UserRankingServlet', {
             method: 'POST',
             headers: {

@@ -324,7 +324,7 @@ public class AccountDAO {
                 psUser.setInt(1, id);
                 psUser.executeUpdate();
 
-                // 2. likes_logテーブルにいいね履歴を記録（日時created_atは自動挿入）
+                // 2. likes_logテーブルにいいね履歴を記録
                 psLog.setInt(1, id);
                 psLog.executeUpdate();
 

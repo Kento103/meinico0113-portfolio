@@ -8,13 +8,19 @@
 <title>公開画面</title>
 <style>
     /* ユーザー1人分の情報の枠線 */
-    .user-card { border: 1px solid #ddd; margin: 10px; padding: 10px; border-radius: 8px; width: 300px; }
+    .user-card {
+        border: 1px solid #ddd;
+        margin: 10px; /* boxの外側の余白 */
+        padding: 10px; /* boxの内側の余白 */
+        border-radius: 8px; /* boxの丸み */
+        width: 300px;
+    }
     
     /* ボタンの共通スタイル */
     .btn { 
         display: inline-block;
         padding: 5px 10px; 
-        cursor: pointer; 
+        cursor: pointer; /* ボタンに合わせた際、カーソルが指のマークに変わる */
         border-radius: 4px; 
         border: none;
         text-decoration: none; /* リンクの下線を消す */
@@ -23,10 +29,10 @@
         color: white;
     }
     
-    /* いいねボタン（赤）*/
+    /* いいねボタン */
     .like-btn { background-color: #ff4d4d; }
     
-    /* 詳細ボタン（グレー）*/
+    /* 詳細ボタン */
     .detail-btn { background-color: #888888; }
 
     /* 横並びに配置 */
@@ -76,7 +82,7 @@
 
     function renderUserList() {
         const container = document.getElementById('user-list-container');
-        // 一度中身を空っぽにする
+        // 一度HTMLの中身を空っぽにする
         container.innerHTML = ''; 
 
         // データ要素を取得（ユーザー1人分の箱ごと順番を入れ替える必要があるため、user-raw-dataからとってくる）
@@ -93,13 +99,14 @@
         dataElements.forEach(el => {
             const id = el.dataset.id;
             const kana = el.dataset.kana;
-            let gender = el.dataset.gender; // constの場合際代入できないため、letを使用
+            let gender = el.dataset.gender; // constの場合再代入できないため、letを使用
             const age = el.dataset.age;
             const profile = el.dataset.profile;
             const likes = el.dataset.likes;
 
             if (!id) return;
 
+            // 日本語に書き換える（=== 完全一致でないと×）
             if (gender === 'male') {
                 gender = '男性';
             } else if (gender === 'female') {
@@ -118,6 +125,7 @@
                     '</div>' +
             '</div>';
 
+            // カードが上から下へ綺麗に順番通りに並べていく
             container.insertAdjacentHTML('beforeend', cardHtml);
         });
 
@@ -134,6 +142,7 @@
         const formData = new URLSearchParams();
         formData.append('targetId', targetId);
 
+        // 画面を切り替えずに裏側でサーバー通信を行う
         fetch('UserRankingServlet', {
             method: 'POST',
             headers: {
